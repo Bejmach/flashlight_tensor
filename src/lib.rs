@@ -203,5 +203,20 @@ mod additional_tests{
 
         assert_eq!(result.get_data(), &expected_data);
         assert_eq!(result.get_sizes(), &expected_sizes);
+    }
+
+    #[test]
+    fn set(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
+        let sizes: Vec<u32> = vec!{2, 2};
+
+        let expected_data: Vec<f32> = vec!{1.0, 5.0, 3.0, 4.0};
+        let expected_sizes: Vec<u32> = vec!{2,2};
+
+        let mut result = Tensor::from_data(&data, &sizes).unwrap();
+        result.set(5.0, &[0, 1]);
+
+        assert_eq!(result.get_data(), &expected_data);
+        assert_eq!(result.get_sizes(), &expected_sizes);
     } 
 }
