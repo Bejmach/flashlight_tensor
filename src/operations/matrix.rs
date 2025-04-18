@@ -130,18 +130,18 @@ impl Tensor<f32>{
             return None;
         }
 
-        let mut return_data: Vec<f32> = vec![0.0; self.get_sizes()[0] as usize * tens2.get_sizes()[1] as usize];
-        
+        let mut return_data: Vec<f32> = Vec::with_capacity((self.get_sizes()[0] * tens2.get_sizes()[1]) as usize);
+
+        println!("{}, {}", self.get_sizes()[0], tens2.get_sizes()[1]);
+        println!("{}", self.get_sizes()[0] * tens2.get_sizes()[1]);
+
         for i in 0..self.get_sizes()[0]{
             for j in 0..tens2.get_sizes()[1]{
-
-                print!("{}, ", j);
-                let vec_position = i * self.get_sizes()[0] + j;
 
                 let mat1_row = self.matrix_row(i).unwrap();
                 let mat2_col = tens2.matrix_col(j).unwrap();
 
-                return_data[vec_position as usize] = mat1_row.dot_product(&mat2_col).unwrap();
+                return_data.push(mat1_row.dot_product(&mat2_col).unwrap());
             }
         }
 
