@@ -167,3 +167,41 @@ mod matrix_tests{
         assert_eq!(result.get_sizes(), &expected_sizes);
     }
 }
+
+#[cfg(test)]
+mod additional_tests{
+    use prelude::*;
+    use super::*;
+
+    #[test]
+    fn append_vector(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result = tensor.append(&tensor).unwrap();
+
+        let expected_data: Vec<f32> = vec!{1.0, 2.0, 3.0, 1.0, 2.0, 3.0};
+        let expected_sizes: Vec<u32> = vec!{6};
+
+        assert_eq!(result.get_data(), &expected_data);
+        assert_eq!(result.get_sizes(), &expected_sizes);
+    }
+
+    #[test]
+    fn append_matrix(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
+        let sizes: Vec<u32> = vec!{2, 2};
+
+        let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result = tensor.append(&tensor).unwrap();
+
+        let expected_data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0};
+        let expected_sizes: Vec<u32> = vec!{4,2};
+
+        assert_eq!(result.get_data(), &expected_data);
+        assert_eq!(result.get_sizes(), &expected_sizes);
+    } 
+}

@@ -6,7 +6,7 @@ pub struct Tensor<T>{
 }
 
 impl<T: Default + Clone> Tensor<T>{
-    pub fn new(_sizes: &[u32]) -> Self{
+    pub fn new(_sizes: &[u32]) -> Tensor<T>{
         let mut total_size: u32 = 1;
         for i in 0.._sizes.len(){
             total_size *= _sizes[i];
@@ -32,6 +32,24 @@ impl<T: Default + Clone> Tensor<T>{
     }
     pub fn get_sizes(&self) -> &Vec<u32>{
         return &self.sizes;
+    }
+    pub fn append(&self, tens2: &Tensor<T>) -> Option<Self>{
+        if (self.sizes.len() != 1 || tens2.sizes.len() != 1) && self.get_sizes()[1..].to_vec() != tens2.get_sizes()[1..].to_vec(){
+            return None;
+        }
+
+        let mut return_data: Vec<T> = self.get_data().clone();
+        let mut append_data: Vec<T> = tens2.get_data().clone();
+        
+        return_data.append(&mut append_data);
+
+        let mut return_sizes = self.get_sizes().clone();
+        return_sizes[0] += tens2.get_sizes()[0];
+
+        Some(Self{
+            data: return_data,
+            sizes: return_sizes,
+        })
     }
 }
 impl<T> Tensor<T>{
