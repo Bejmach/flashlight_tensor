@@ -1,5 +1,3 @@
-use rand::prelude::*;
-
 #[derive(Clone)]
 pub struct Tensor<T>{
     pub data: Vec<T>,
@@ -8,7 +6,7 @@ pub struct Tensor<T>{
 }
 
 impl<T: Default + Clone> Tensor<T>{
-    pub fn new(_sizes: Vec<u32>) -> Self{
+    pub fn new(_sizes: &[u32]) -> Self{
         let mut total_size: u32 = 1;
         for i in 0.._sizes.len(){
             total_size *= _sizes[i];
@@ -16,8 +14,18 @@ impl<T: Default + Clone> Tensor<T>{
         
         Self{
             data: vec![T::default(); total_size as usize],
-            sizes: _sizes,
+            sizes: _sizes.to_vec(),
         }
+    }
+    pub fn from_data(_data: &Vec<T>, _sizes: &Vec<u32>) -> Option<Self>{
+        if _sizes.iter().product::<u32>() as usize != _data.len(){
+            return None;
+        }
+
+        Some(Self{
+            data: _data.to_vec(),
+            sizes: _sizes.to_vec(),
+        })
     }
     pub fn value(&self, pos: &[u32]) -> Option<&T>{
         let self_dimensions = self.sizes.len();
@@ -43,7 +51,7 @@ impl<T: Default + Clone> Tensor<T>{
 }
 
 impl Tensor<f32>{
-    pub fn new_f32(_sizes: Vec<u32>) -> Self{
+    pub fn new_f32(_sizes: &[u32]) -> Self{
         let mut total_size: u32 = 1;
         for i in 0.._sizes.len(){
             total_size *= _sizes[i];
@@ -51,26 +59,7 @@ impl Tensor<f32>{
         
         Self{
             data: vec![0.0; total_size as usize],
-            sizes: _sizes,
-        }
-    }
-    pub fn rand_f32(_sizes: Vec<u32>, rand_range: f32) -> Self{
-        let mut rng = rand::rng();
-
-        let mut total_size: u32 = 1;
-        for i in 0.._sizes.len(){
-            total_size *= _sizes[i];
-        }
-
-        let mut input_vector = Vec::with_capacity(total_size as usize);
-
-        for _i in 0..total_size{
-            input_vector.push(rng.random_range(-rand_range..rand_range));
-        }
-        
-        Self{
-            data: input_vector,
-            sizes: _sizes,
+            sizes: _sizes.to_vec(),
         }
     }
 }
