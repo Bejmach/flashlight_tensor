@@ -88,6 +88,36 @@ impl<T: Default + Clone> Tensor<T>{
     }
 }
 
+impl<T> Tensor<T>
+where
+    T: Default + std::fmt::Display + Copy,
+{
+    pub fn matrix_to_string(&self) -> Option<String>{
+
+        if self.get_sizes().len() != 2{
+            return None;
+        }
+        
+        let mut return_string: String = String::with_capacity((self.get_sizes()[0] * 3 + self.get_sizes()[0] * self.get_sizes()[1]) as usize);
+
+        for i in 0..self.get_sizes()[0]{
+            return_string.push_str("|");
+            for j in 0..self.get_sizes()[1]{
+                return_string.push_str(&format!("{}", self.value(&[i, j]).unwrap()));
+                if j!=self.get_sizes()[1]-1{
+                    return_string.push_str(", ");
+                }
+            }
+            return_string.push_str("|");
+            if i!= self.get_sizes()[0]-1{
+                return_string.push_str("\n");
+            }
+        }
+
+        Some(return_string)
+    }
+}
+
 impl Tensor<f32>{
     pub fn matrix_mult(&self, tens2: &Tensor<f32>) -> Option<Tensor<f32>>{
         if self.get_sizes().len() != 2{

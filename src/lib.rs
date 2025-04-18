@@ -234,4 +234,16 @@ mod additional_tests{
         assert_eq!(result.get_data(), &expected_data);
         assert_eq!(result.get_sizes(), &expected_sizes);
     } 
+    #[test]
+    fn to_string(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
+        let sizes: Vec<u32> = vec!{2, 2};
+
+        let expected: String = "|1, 2|\n|3, 4|".to_string();
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+        let result = tensor.matrix_to_string().unwrap();
+
+        assert_eq!(result, expected);
+    }
 }
