@@ -74,6 +74,27 @@ impl<T> Tensor<T>{
 
         Some(&self.data[index as usize])
     }
+    pub fn set(&mut self, value: T, pos: &[u32]){
+        let self_dimensions = self.sizes.len();
+        let selector_dimensions = pos.len();
+        if self_dimensions - selector_dimensions != 0{
+            return;
+        }
+        
+        for i in 0..pos.len(){
+            if pos[i] >= *self.sizes.get(i).unwrap(){
+                return;
+            }
+        }
+        let mut index = 0;
+        let mut stride = 1;
+        for i in (0..self.sizes.len()).rev() {
+            index += pos[i] * stride;
+            stride *= self.sizes[i];
+        }
+
+        self.data[index as usize] = value;
+    }
 }
 
 //operations for T with std::opt::Add
