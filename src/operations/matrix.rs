@@ -68,6 +68,24 @@ impl<T: Default + Clone> Tensor<T>{
 
         Tensor::from_data(&return_vector, &vec!{self.get_sizes()[0]})
     }
+    pub fn matrix_transpose(&self) -> Option<Tensor<T>>{
+        if self.get_sizes().len() != 2{
+            return None;
+        }
+
+        let mut new_sizes = self.get_sizes().clone();
+        new_sizes.reverse();
+        let full_size: u32 = self.get_sizes().iter().copied().product();
+        let mut return_data: Vec<T> = Vec::with_capacity(full_size as usize);
+
+        for collumn in 0..self.get_sizes()[1]{
+            for row in 0..self.get_sizes()[0]{
+                return_data.push(self.value(&[row, collumn]).unwrap().clone());
+            }
+        }
+
+        Some(Tensor::from_data(&return_data, &new_sizes).unwrap())
+    }
 }
 
 impl Tensor<f32>{

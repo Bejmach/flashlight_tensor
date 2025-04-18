@@ -166,6 +166,21 @@ mod matrix_tests{
         assert_eq!(result.get_data(), &expected_data);
         assert_eq!(result.get_sizes(), &expected_sizes);
     }
+    #[test]
+    fn matrix_transpose(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+        let sizes: Vec<u32> = vec!{2,3};
+
+        let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
+
+        let expected_data: Vec<f32> = vec!{1.0, 4.0, 2.0, 5.0, 3.0, 6.0};
+        let expected_sizes: Vec<u32> = vec!{3, 2};
+
+        let result = tensor.matrix_transpose().unwrap();
+
+        assert_eq!(result.get_data(), &expected_data);
+        assert_eq!(result.get_sizes(), &expected_sizes);
+    }
 }
 
 #[cfg(test)]
