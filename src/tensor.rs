@@ -17,7 +17,7 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: _sizes.to_vec(),
         }
     }
-    pub fn from_data(_data: &Vec<T>, _sizes: &Vec<u32>) -> Option<Self>{
+    pub fn from_data(_data: &[T], _sizes: &[u32]) -> Option<Self>{
         if _sizes.iter().product::<u32>() as usize != _data.len(){
             return None;
         }
