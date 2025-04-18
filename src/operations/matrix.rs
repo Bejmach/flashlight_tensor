@@ -131,10 +131,6 @@ impl Tensor<f32>{
         }
 
         let mut return_data: Vec<f32> = Vec::with_capacity((self.get_sizes()[0] * tens2.get_sizes()[1]) as usize);
-
-        println!("{}, {}", self.get_sizes()[0], tens2.get_sizes()[1]);
-        println!("{}", self.get_sizes()[0] * tens2.get_sizes()[1]);
-
         for i in 0..self.get_sizes()[0]{
             for j in 0..tens2.get_sizes()[1]{
 
