@@ -1,8 +1,8 @@
 #[derive(Clone)]
 pub struct Tensor<T>{
-    pub data: Vec<T>,
+    data: Vec<T>,
     //..., z, y, x
-    pub sizes: Vec<u32>,
+    sizes: Vec<u32>,
 }
 
 impl<T: Default + Clone> Tensor<T>{
@@ -26,6 +26,12 @@ impl<T: Default + Clone> Tensor<T>{
             data: _data.to_vec(),
             sizes: _sizes.to_vec(),
         })
+    }
+    pub fn get_data(&self) -> &Vec<T>{
+        return &self.data;
+    }
+    pub fn get_sizes(&self) -> &Vec<u32>{
+        return &self.sizes;
     }
 }
 impl<T> Tensor<T>{
