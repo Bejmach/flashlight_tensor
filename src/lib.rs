@@ -3,7 +3,7 @@ pub mod operations;
 pub mod prelude;
 
 #[cfg(test)]
-mod tests{
+mod get_tests{
     use prelude::*;
     use super::*;
 
@@ -49,5 +49,65 @@ mod tests{
 
         assert_eq!(vector.data, data[0..4]);
         assert_eq!(vector.sizes, sizes[1..]);
+    }
+}
+
+
+#[cfg(test)]
+mod iterative_operation_tests{
+    use prelude::*;
+    use super::*;
+
+    #[test]
+    fn iterative_addition(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{2.0, 4.0, 6.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_add(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.data, expected);
+    }
+    #[test]
+    fn iterative_subtraction(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{0.0, 0.0, 0.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_sub(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.data, expected);
+    }
+    #[test]
+    fn iterative_multiplication(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{1.0, 4.0, 9.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_mult(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.data, expected);
+    }
+    #[test]
+    fn iterative_division(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{1.0, 1.0, 1.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_div(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.data, expected);
     }
 }
