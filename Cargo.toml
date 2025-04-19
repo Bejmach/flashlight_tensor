@@ -8,6 +8,7 @@ licance = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/Bejmach/flashlight_tensor"
 homepage = "https://github.com/Bejmach/flashlight_tensor"
+documentation = "https://docs.rs/flashlight_tensor"
 keywords = ["tensor", "matrix", "machine-learning"]
 categories = ["data-structures"]
 
