@@ -51,6 +51,9 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: return_sizes,
         })
     }
+    pub fn count_data(&self) -> usize{
+        self.get_data().len()
+    }
 }
 impl<T> Tensor<T>{
     pub fn value(&self, pos: &[u32]) -> Option<&T>{
@@ -94,99 +97,6 @@ impl<T> Tensor<T>{
         }
 
         self.data[index as usize] = value;
-    }
-}
-
-//operations for T with std::opt::Add
-impl<T> Tensor<T>
-where
-    T: std::ops::Add<Output = T> + Copy,
-{
-    pub fn iter_add(&self, tens2: &Tensor<T>) -> Option<Self>{
-        if self.sizes != tens2.sizes{
-            return None;
-        }
-        
-        let mut return_data = Vec::with_capacity(self.data.len());
-
-        for i in 0..self.data.len(){
-            return_data.push(self.data[i] + tens2.data[i]);
-        }
-
-        Some(
-            Self{
-                data: return_data,
-                sizes: self.sizes.clone(),
-            })
-    }
-}
-//operations for T with std::opt::Sub
-impl<T> Tensor<T>
-where
-    T: std::ops::Sub<Output = T> + Copy,
-{
-    pub fn iter_sub(&self, tens2: &Tensor<T>) -> Option<Self>{
-        if self.sizes != tens2.sizes{
-            return None;
-        }
-        
-        let mut return_data = Vec::with_capacity(self.data.len());
-
-        for i in 0..self.data.len(){
-            return_data.push(self.data[i] - tens2.data[i]);
-        }
-
-        Some(
-            Self{
-                data: return_data,
-                sizes: self.sizes.clone(),
-            })
-    }
-}
-//operations for T with std::opt::Mul
-impl<T> Tensor<T>
-where
-    T: std::ops::Mul<Output = T> + Copy,
-{
-    pub fn iter_mult(&self, tens2: &Tensor<T>) -> Option<Self>{
-        if self.sizes != tens2.sizes{
-            return None;
-        }
-        
-        let mut return_data = Vec::with_capacity(self.data.len());
-
-        for i in 0..self.data.len(){
-            return_data.push(self.data[i] * tens2.data[i]);
-        }
-
-        Some(
-            Self{
-                data: return_data,
-                sizes: self.sizes.clone(),
-            })
-    }
-}
-//operations for T with std::opt::Div
-impl<T> Tensor<T>
-where
-    T: std::ops::Div<Output = T> + Copy,
-{
-    pub fn iter_div(&self, tens2: &Tensor<T>) -> Option<Self>{
-        if self.sizes != tens2.sizes{
-            return None;
-        }
-        
-        let mut return_data = Vec::with_capacity(self.data.len());
-
-        for i in 0..self.data.len(){
-            return_data.push(self.data[i] / tens2.data[i]);
-        }
-
-        Some(
-            Self{
-                data: return_data,
-                sizes: self.sizes.clone(),
-            })
     }
 }
 

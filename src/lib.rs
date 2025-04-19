@@ -64,7 +64,7 @@ mod iterative_operation_tests{
     use super::*;
 
     #[test]
-    fn iterative_addition(){
+    fn iterative_tensor_addition(){
         let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
         let sizes: Vec<u32> = vec!{3};
 
@@ -72,7 +72,60 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_add(&tensor).unwrap();
+        let result_tensor = tensor.iter_tens_add(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.get_data(), &expected);
+    }
+    #[test]
+    fn iterative_tensor_subtraction(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{0.0, 0.0, 0.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_tens_sub(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.get_data(), &expected);
+    }
+    #[test]
+    fn iterative_tensor_multiplication(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{1.0, 4.0, 9.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_tens_mult(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.get_data(), &expected);
+    }
+    #[test]
+    fn iterative_tensor_division(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{1.0, 1.0, 1.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_tens_div(&tensor).unwrap();
+        
+        assert_eq!(result_tensor.get_data(), &expected);
+    }
+
+    #[test]
+    fn iterative_addition(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{2.0, 3.0, 4.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_add(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -81,11 +134,11 @@ mod iterative_operation_tests{
         let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
         let sizes: Vec<u32> = vec!{3};
 
-        let expected: Vec<f32> = vec!{0.0, 0.0, 0.0};
+        let expected: Vec<f32> = vec!{0.0, 1.0, 2.0};
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_sub(&tensor).unwrap();
+        let result_tensor = tensor.iter_sub(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -94,11 +147,11 @@ mod iterative_operation_tests{
         let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
         let sizes: Vec<u32> = vec!{3};
 
-        let expected: Vec<f32> = vec!{1.0, 4.0, 9.0};
+        let expected: Vec<f32> = vec!{2.0, 4.0, 6.0};
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_mult(&tensor).unwrap();
+        let result_tensor = tensor.iter_mult(2.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -107,11 +160,24 @@ mod iterative_operation_tests{
         let data: Vec<f32> = vec!{1.0, 2.0, 3.0};
         let sizes: Vec<u32> = vec!{3};
 
-        let expected: Vec<f32> = vec!{1.0, 1.0, 1.0};
+        let expected: Vec<f32> = vec!{0.5, 1.0, 1.5};
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_div(&tensor).unwrap();
+        let result_tensor = tensor.iter_div(2.0);
+        
+        assert_eq!(result_tensor.get_data(), &expected);
+    }
+    #[test]
+    fn iterative_logarithm(){
+        let data: Vec<f32> = vec!{1.0, 10.0, 100.0};
+        let sizes: Vec<u32> = vec!{3};
+
+        let expected: Vec<f32> = vec!{0.0, 1.0, 2.0};
+
+        let tensor = Tensor::from_data(&data, &sizes).unwrap();
+
+        let result_tensor = tensor.iter_log();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
