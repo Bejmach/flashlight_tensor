@@ -25,9 +25,10 @@ fn main(){
 ```
 
 ## Documentation
+``cargo doc --open``
+
 > Currently only avilable by opening from files  
 > tensor operations currently undocumented
-``cargo doc --open``
 
 ## Tests
 Run tests with:  
