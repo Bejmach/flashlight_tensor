@@ -31,6 +31,9 @@ fn main(){
 ```
 
 ## Documentation
+
+[Docs](https://docs.rs/flashlight_tensor/0.2.0/flashlight_tensor/)  
+
 > all tensor operations in tensor category
 
 ## Tests
