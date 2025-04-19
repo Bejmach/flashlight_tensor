@@ -27,6 +27,14 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: _sizes.to_vec(),
         })
     }
+    pub fn fill(fill_data: T, _sizes: &[u32]) -> Self{
+        let full_size: u32 = _sizes.iter().product();
+        
+        Self{
+            data: vec![fill_data; full_size as usize],
+            sizes: _sizes.to_vec(),
+        }
+    }
     pub fn get_data(&self) -> &Vec<T>{
         return &self.data;
     }

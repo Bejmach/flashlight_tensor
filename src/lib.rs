@@ -55,6 +55,17 @@ mod get_tests{
         assert_eq!(vector.get_data(), &data[0..4].to_vec());
         assert_eq!(vector.get_sizes(), &sizes[1..].to_vec());
     }
+    #[test]
+    fn fill(){
+        let sizes: Vec<u32> = vec!{2, 2, 2};
+
+        let tensor: Tensor<f32> = Tensor::fill(1.0, &sizes);
+
+        let expected_data = vec!{1.0; 8};
+
+        assert_eq!(tensor.get_data(), &expected_data);
+        assert_eq!(tensor.get_sizes(), &sizes);
+    }
 }
 
 
