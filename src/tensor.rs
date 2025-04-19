@@ -1,3 +1,5 @@
+/// The main Tensor struct 
+/// with data and sizes order by [... , z, y, x]
 #[derive(Clone)]
 pub struct Tensor<T>{
     data: Vec<T>,
@@ -6,6 +8,16 @@ pub struct Tensor<T>{
 }
 
 impl<T: Default + Clone> Tensor<T>{
+    /// Creates a new tensor with sizes
+    /// and default values of each element
+    ///
+    /// # Example
+    /// ```
+    /// //a =
+    /// //[0.0, 0.0]
+    /// //[0.0, 0.0]
+    /// let a: Tensor<f32> = Tensor::new(&[2, 2])
+    /// ```
     pub fn new(_sizes: &[u32]) -> Tensor<T>{
         let mut total_size: u32 = 1;
         for i in 0.._sizes.len(){
@@ -17,6 +29,18 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: _sizes.to_vec(),
         }
     }
+
+    /// Creates a new tensor from data
+    /// with certain size, or None
+    /// if data does not fit in sizes
+    ///
+    /// # Example
+    /// ```
+    /// //a =
+    /// //[1.0, 2.0]
+    /// //[3.0, 4.0]
+    /// let a: Tensor<f32> = Tensor::from_data(vec!{1.0, 2.0, 3.0, 4.0}, &[2, 2])
+    /// ```
     pub fn from_data(_data: &[T], _sizes: &[u32]) -> Option<Self>{
         if _sizes.iter().product::<u32>() as usize != _data.len(){
             return None;
@@ -27,6 +51,18 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: _sizes.to_vec(),
         })
     }
+    
+    /// Creates a new tensor filled
+    /// with one element
+    /// with certain size
+    ///
+    /// # Example
+    /// ```
+    /// //a = 
+    /// //[1.0, 1.0]
+    /// //[1.0, 1.0]
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// ```
     pub fn fill(fill_data: T, _sizes: &[u32]) -> Self{
         let full_size: u32 = _sizes.iter().product();
         
@@ -35,12 +71,47 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: _sizes.to_vec(),
         }
     }
+
+    /// Returns reference to data in tensor
+    /// 
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    ///
+    /// //b = &{1.0, 1.0, 1.0, 1.0}
+    /// let b = a.get_data();
+    ///
+    /// ```
     pub fn get_data(&self) -> &Vec<T>{
         return &self.data;
     }
+
+    /// Returns reference to sizes in tensor
+    /// 
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    ///
+    /// //b = &{2, 2}
+    /// let b = a.get_sizes();
+    ///
+    /// ```
     pub fn get_sizes(&self) -> &Vec<u32>{
         return &self.sizes;
     }
+    /// returns new tensor with data of first tensor + data of second tensor
+    /// with size[0] = tensor1.size[0] + tensor2.size[0]
+    /// only when tensor1.size[1..] == tensor2.size[1..]
+    ///
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2, 2])
+    ///
+    /// //c.data = {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0}
+    /// //c.sizes = {4, 2}
+    /// let c: Tensor<f32> = a.append(&b);
+    /// ```
     pub fn append(&self, tens2: &Tensor<T>) -> Option<Self>{
         if (self.sizes.len() != 1 || tens2.sizes.len() != 1) && self.get_sizes()[1..].to_vec() != tens2.get_sizes()[1..].to_vec(){
             return None;
@@ -59,11 +130,29 @@ impl<T: Default + Clone> Tensor<T>{
             sizes: return_sizes,
         })
     }
+    /// counts elements in tensor
+    ///
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    ///
+    /// //count = 4
+    /// let count = a.count_data();
+    /// ```
     pub fn count_data(&self) -> usize{
         self.get_data().len()
     }
 }
 impl<T> Tensor<T>{
+    /// returns an element on position
+    ///
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    ///
+    /// //b = 1.0
+    /// let b = a.value(&[0, 0]).unwrap();
+    /// ```
     pub fn value(&self, pos: &[u32]) -> Option<&T>{
         let self_dimensions = self.sizes.len();
         let selector_dimensions = pos.len();
@@ -85,6 +174,17 @@ impl<T> Tensor<T>{
 
         Some(&self.data[index as usize])
     }
+    /// changes an element on position
+    ///
+    /// # Example
+    /// ```
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    ///
+    /// //a =
+    /// //[5.0, 1.0]
+    /// //[1.0, 1.0]
+    /// a.set(5.0, &[0, 0]).unwrap();
+    /// ```
     pub fn set(&mut self, value: T, pos: &[u32]){
         let self_dimensions = self.sizes.len();
         let selector_dimensions = pos.len();
@@ -105,19 +205,5 @@ impl<T> Tensor<T>{
         }
 
         self.data[index as usize] = value;
-    }
-}
-
-impl Tensor<f32>{
-    pub fn new_f32(_sizes: &[u32]) -> Self{
-        let mut total_size: u32 = 1;
-        for i in 0.._sizes.len(){
-            total_size *= _sizes[i];
-        }
-        
-        Self{
-            data: vec![0.0; total_size as usize],
-            sizes: _sizes.to_vec(),
-        }
     }
 }
