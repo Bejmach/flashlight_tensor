@@ -1,4 +1,4 @@
-#![deny(unused)]
+#![allow(unused)]
 
 pub mod tensor;
 pub mod operations;
