@@ -16,7 +16,8 @@ flashlight_tensor = "0.4.4"
 ```
 
 ## Quick Start
-```use flashlight_tensor::prelude::*;
+```rust
+use flashlight_tensor::prelude::*;
 
 fn main(){
     let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
@@ -25,4 +26,4 @@ fn main(){
 
 ## Tests
 Run tests with:  
-```cargo test```
+``cargo test``
