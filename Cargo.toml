@@ -1,5 +1,5 @@
 [package]
-name = "flashlight-tensor"
+name = "flashlight_tensor"
 version = "0.4.4"
 edition = "2024"
 

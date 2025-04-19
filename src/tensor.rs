@@ -13,10 +13,11 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// # Example
     /// ```
+    /// use flashlight_tensor::prelude::*;
     /// //a =
     /// //[0.0, 0.0]
     /// //[0.0, 0.0]
-    /// let a: Tensor<f32> = Tensor::new(&[2, 2])
+    /// let a: Tensor<f32> = Tensor::new(&[2, 2]);
     /// ```
     pub fn new(_sizes: &[u32]) -> Tensor<T>{
         let mut total_size: u32 = 1;
@@ -36,10 +37,11 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// # Example
     /// ```
+    /// use flashlight_tensor::prelude::*;
     /// //a =
     /// //[1.0, 2.0]
     /// //[3.0, 4.0]
-    /// let a: Tensor<f32> = Tensor::from_data(vec!{1.0, 2.0, 3.0, 4.0}, &[2, 2])
+    /// let a: Tensor<f32> = Tensor::from_data(&vec!{1.0, 2.0, 3.0, 4.0}, &[2, 2]).unwrap();
     /// ```
     pub fn from_data(_data: &[T], _sizes: &[u32]) -> Option<Self>{
         if _sizes.iter().product::<u32>() as usize != _data.len(){
@@ -58,10 +60,11 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// # Example
     /// ```
+    /// use flashlight_tensor::prelude::*;
     /// //a = 
     /// //[1.0, 1.0]
     /// //[1.0, 1.0]
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     /// ```
     pub fn fill(fill_data: T, _sizes: &[u32]) -> Self{
         let full_size: u32 = _sizes.iter().product();
@@ -76,7 +79,8 @@ impl<T: Default + Clone> Tensor<T>{
     /// 
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //b = &{1.0, 1.0, 1.0, 1.0}
     /// let b = a.get_data();
@@ -90,7 +94,8 @@ impl<T: Default + Clone> Tensor<T>{
     /// 
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //b = &{2, 2}
     /// let b = a.get_sizes();
@@ -105,12 +110,13 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
-    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
+    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2, 2]);
     ///
     /// //c.data = {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0}
     /// //c.sizes = {4, 2}
-    /// let c: Tensor<f32> = a.append(&b);
+    /// let c: Tensor<f32> = a.append(&b).unwrap();
     /// ```
     pub fn append(&self, tens2: &Tensor<T>) -> Option<Self>{
         if (self.sizes.len() != 1 || tens2.sizes.len() != 1) && self.get_sizes()[1..].to_vec() != tens2.get_sizes()[1..].to_vec(){
@@ -134,7 +140,8 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //count = 4
     /// let count = a.count_data();
@@ -148,7 +155,8 @@ impl<T> Tensor<T>{
     ///
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //b = 1.0
     /// let b = a.value(&[0, 0]).unwrap();
@@ -178,12 +186,13 @@ impl<T> Tensor<T>{
     ///
     /// # Example
     /// ```
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2])
+    /// use flashlight_tensor::prelude::*;
+    /// let mut a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //a =
     /// //[5.0, 1.0]
     /// //[1.0, 1.0]
-    /// a.set(5.0, &[0, 0]).unwrap();
+    /// a.set(5.0, &[0, 0]);
     /// ```
     pub fn set(&mut self, value: T, pos: &[u32]){
         let self_dimensions = self.sizes.len();
