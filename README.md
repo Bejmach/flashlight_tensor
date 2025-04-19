@@ -9,6 +9,7 @@
 - Element-wise operations
 - Scalar multiplication and addition
 - Tensor multiplication and addition
+- Matrix transformation
 - Dot product
 - CPU only, with GPU support in plans
 
