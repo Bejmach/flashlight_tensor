@@ -25,8 +25,8 @@ fn main(){
 ```
 
 ## Documentation
-> Currently only avilable by opening from files
-> tensor operations currently undocumented
+> Currently only avilable by opening from files  
+> tensor operations currently undocumented  
 ``cargo doc --open``
 
 ## Tests
