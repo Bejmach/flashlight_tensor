@@ -7,6 +7,9 @@
 ## Features
 - n-dimensional tensors
 - Element-wise operations
+- Scalar multiplication and addition
+- Tensor multiplication and addition
+- Dot product
 - CPU only, with GPU support in plans
 
 ## Instalation
@@ -25,10 +28,7 @@ fn main(){
 ```
 
 ## Documentation
-``cargo doc --open``
-
-> Currently only avilable by opening from files  
-> tensor operations currently undocumented
+> all tensor operations in tensor category
 
 ## Tests
 Run tests with:  

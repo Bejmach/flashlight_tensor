@@ -18,6 +18,8 @@ impl<T: Default + Clone> Tensor<T>{
     /// //[0.0, 0.0]
     /// //[0.0, 0.0]
     /// let a: Tensor<f32> = Tensor::new(&[2, 2]);
+    ///
+    /// assert_eq!(a.get_data(), &vec!{0.0, 0.0, 0.0, 0.0});
     /// ```
     pub fn new(_sizes: &[u32]) -> Tensor<T>{
         let mut total_size: u32 = 1;
@@ -42,6 +44,7 @@ impl<T: Default + Clone> Tensor<T>{
     /// //[1.0, 2.0]
     /// //[3.0, 4.0]
     /// let a: Tensor<f32> = Tensor::from_data(&vec!{1.0, 2.0, 3.0, 4.0}, &[2, 2]).unwrap();
+    /// assert_eq!(a.get_data(), &vec!{1.0, 2.0, 3.0, 4.0});
     /// ```
     pub fn from_data(_data: &[T], _sizes: &[u32]) -> Option<Self>{
         if _sizes.iter().product::<u32>() as usize != _data.len(){
@@ -65,6 +68,8 @@ impl<T: Default + Clone> Tensor<T>{
     /// //[1.0, 1.0]
     /// //[1.0, 1.0]
     /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
+    ///
+    /// assert_eq!(a.get_data(), &vec!{1.0, 1.0, 1.0, 1.0});
     /// ```
     pub fn fill(fill_data: T, _sizes: &[u32]) -> Self{
         let full_size: u32 = _sizes.iter().product();
@@ -85,6 +90,7 @@ impl<T: Default + Clone> Tensor<T>{
     /// //b = &{1.0, 1.0, 1.0, 1.0}
     /// let b = a.get_data();
     ///
+    /// assert_eq!(a.get_data(), &vec!{1.0, 1.0, 1.0, 1.0});
     /// ```
     pub fn get_data(&self) -> &Vec<T>{
         return &self.data;
@@ -100,6 +106,7 @@ impl<T: Default + Clone> Tensor<T>{
     /// //b = &{2, 2}
     /// let b = a.get_sizes();
     ///
+    /// assert_eq!(a.get_sizes(), &vec!{2, 2});
     /// ```
     pub fn get_sizes(&self) -> &Vec<u32>{
         return &self.sizes;
@@ -117,6 +124,9 @@ impl<T: Default + Clone> Tensor<T>{
     /// //c.data = {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0}
     /// //c.sizes = {4, 2}
     /// let c: Tensor<f32> = a.append(&b).unwrap();
+    ///
+    /// assert_eq!(c.get_data(), &vec!{1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0});
+    /// assert_eq!(c.get_sizes(), &vec!{4, 2});
     /// ```
     pub fn append(&self, tens2: &Tensor<T>) -> Option<Self>{
         if (self.sizes.len() != 1 || tens2.sizes.len() != 1) && self.get_sizes()[1..].to_vec() != tens2.get_sizes()[1..].to_vec(){
@@ -145,6 +155,8 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// //count = 4
     /// let count = a.count_data();
+    ///
+    /// assert_eq!(a.count_data(), 4);
     /// ```
     pub fn count_data(&self) -> usize{
         self.get_data().len()
@@ -160,6 +172,8 @@ impl<T> Tensor<T>{
     ///
     /// //b = 1.0
     /// let b = a.value(&[0, 0]).unwrap();
+    ///
+    /// assert_eq!(b, &1.0);
     /// ```
     pub fn value(&self, pos: &[u32]) -> Option<&T>{
         let self_dimensions = self.sizes.len();
@@ -193,6 +207,8 @@ impl<T> Tensor<T>{
     /// //[5.0, 1.0]
     /// //[1.0, 1.0]
     /// a.set(5.0, &[0, 0]);
+    ///
+    /// assert_eq!(a.get_data(), &vec!{5.0, 1.0, 1.0, 1.0});
     /// ```
     pub fn set(&mut self, value: T, pos: &[u32]){
         let self_dimensions = self.sizes.len();

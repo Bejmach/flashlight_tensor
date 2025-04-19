@@ -83,7 +83,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_tens_add(&tensor).unwrap();
+        let result_tensor = tensor.tens_add(&tensor).unwrap();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -96,7 +96,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_tens_sub(&tensor).unwrap();
+        let result_tensor = tensor.tens_sub(&tensor).unwrap();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -109,7 +109,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_tens_mult(&tensor).unwrap();
+        let result_tensor = tensor.tens_mult(&tensor).unwrap();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -122,7 +122,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_tens_div(&tensor).unwrap();
+        let result_tensor = tensor.tens_div(&tensor).unwrap();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -136,7 +136,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_add(1.0);
+        let result_tensor = tensor.add(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -149,7 +149,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_sub(1.0);
+        let result_tensor = tensor.sub(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -162,7 +162,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_mult(2.0);
+        let result_tensor = tensor.mult(2.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -175,7 +175,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_div(2.0);
+        let result_tensor = tensor.div(2.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -188,7 +188,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.iter_log();
+        let result_tensor = tensor.log();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
