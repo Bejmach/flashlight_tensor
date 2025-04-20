@@ -34,6 +34,37 @@ where
 
         Tensor::from_data(&return_data, self.get_sizes())
     }
+    /// Add the tensor to each row of first tensor
+    /// !!! It is possible to add tensor 2x3 to tensor 3x2
+    /// because the function only checks the data length
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
+    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2]);
+    /// 
+    /// //b =
+    /// //[3.0, 3.0]
+    /// //[3.0, 3.0]
+    /// let b: Tensor<f32> = a.tens_broadcast_add(&b).unwrap();
+    ///
+    /// assert_eq!(b.get_data(), &vec!{3.0, 3.0, 3.0, 3.0})
+    /// ```
+    pub fn tens_broadcast_add(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
+        if self.get_data().len() % tens2.get_data().len() != 0{
+            return None;
+        }
+        
+        let mut return_data = Vec::with_capacity(self.get_data().len());
+
+        for i in 0..self.get_data().len(){
+            return_data.push(self.get_data()[i] + tens2.get_data()[i % tens2.get_data().len()]);
+        }
+
+        Tensor::from_data(&return_data, self.get_sizes())
+    }
     /// Add value to each value of tensor
     ///
     /// # Example
@@ -104,6 +135,37 @@ where
 
         Tensor::from_data(&return_data, self.get_sizes())
     }
+    /// Subdivide the tensor to each row of first tensor
+    /// !!! It is possible to subdivide tensor 2x3 to tensor 3x2
+    /// because the function only checks the data length
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
+    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2]);
+    ///
+    /// //b =
+    /// //[-1.0, -1.0]
+    /// //[-1.0, -1.0]
+    /// let b: Tensor<f32> = a.tens_broadcast_sub(&b).unwrap();
+    ///
+    /// assert_eq!(b.get_data(), &vec!{-1.0, -1.0, -1.0, -1.0})
+    /// ```
+    pub fn tens_broadcast_sub(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
+        if self.get_data().len() % tens2.get_data().len() != 0{
+            return None;
+        }
+        
+        let mut return_data = Vec::with_capacity(self.get_data().len());
+
+        for i in 0..self.get_data().len(){
+            return_data.push(self.get_data()[i] - tens2.get_data()[i % tens2.get_data().len()]);
+        }
+
+        Tensor::from_data(&return_data, self.get_sizes())
+    }
     /// Add value from each tensor value 
     ///
     /// # Example
@@ -164,7 +226,38 @@ where
 
         Tensor::from_data(&return_data, self.get_sizes())
     }
-    /// Multiplu each tensor value by scalar
+    /// Multiply the tensor to each row of first tensor
+    /// !!! It is possible to multiply tensor 2x3 to tensor 3x2
+    /// because the function only checks the data length
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::fill(2.0, &[2, 2]);
+    /// let b: Tensor<f32> = Tensor::fill(4.0, &[2]);
+    /// 
+    /// //b =
+    /// //[8.0, 8.0]
+    /// //[8.0, 8.0]
+    /// let b: Tensor<f32> = a.tens_broadcast_mult(&b).unwrap();
+    ///
+    /// assert_eq!(b.get_data(), &vec!{8.0, 8.0, 8.0, 8.0})
+    /// ```
+    pub fn tens_broadcast_mult(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
+        if self.get_data().len() % tens2.get_data().len() != 0{
+            return None;
+        }
+        
+        let mut return_data = Vec::with_capacity(self.get_data().len());
+
+        for i in 0..self.get_data().len(){
+            return_data.push(self.get_data()[i] * tens2.get_data()[i % tens2.get_data().len()]);
+        }
+
+        Tensor::from_data(&return_data, self.get_sizes())
+    }
+    /// Multiply each tensor value by scalar
     ///
     /// # Example
     /// ```
@@ -230,6 +323,37 @@ where
 
         for i in 0..self.get_data().len(){
             return_data.push(self.get_data()[i] / tens2.get_data()[i]);
+        }
+
+        Tensor::from_data(&return_data, self.get_sizes())
+    }
+    /// Divide the tensor to each row of first tensor
+    /// !!! It is possible to divide tensor 2x3 to tensor 3x2
+    /// because the function only checks the data length
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::fill(4.0, &[2, 2]);
+    /// let b: Tensor<f32> = Tensor::fill(2.0, &[2]);
+    /// 
+    /// //b =
+    /// //[2.0, 2.0]
+    /// //[2.0, 2.0]
+    /// let b: Tensor<f32> = a.tens_broadcast_div(&b).unwrap();
+    ///
+    /// assert_eq!(b.get_data(), &vec!{2.0, 2.0, 2.0, 2.0})
+    /// ```
+    pub fn tens_broadcast_div(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
+        if self.get_data().len() % tens2.get_data().len() != 0{
+            return None;
+        }
+        
+        let mut return_data = Vec::with_capacity(self.get_data().len());
+
+        for i in 0..self.get_data().len(){
+            return_data.push(self.get_data()[i] / tens2.get_data()[i % tens2.get_data().len()]);
         }
 
         Tensor::from_data(&return_data, self.get_sizes())

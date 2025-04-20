@@ -18,7 +18,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.0"
+flashlight_tensor = "0.2.2"
 ```
 
 ## Quick Start
