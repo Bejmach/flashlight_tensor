@@ -6,7 +6,7 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
-> project not related to "https://github.com/flashlight/flashlight". Name was decided before I knew about the other flashlight lib. This is my own project, that I decided to do in free time. Name on crates is already taken by me, so cry about it.
+> project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
 ## Features
 - n-dimensional tensors
@@ -20,7 +20,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.2"
+flashlight_tensor = "0.2.3"
 ```
 
 ## Quick Start
@@ -28,6 +28,7 @@ flashlight_tensor = "0.2.2"
 use flashlight_tensor::prelude::*;
 
 fn main(){
+    //2 rows, 2 collumns, fill with 1.0
     let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
 }
 ```
