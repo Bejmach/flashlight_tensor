@@ -228,6 +228,19 @@ mod matrix_tests{
         assert_eq!(result.get_sizes(), expected.get_sizes());
     }
     #[test]
+    fn matrix_collumn_2(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
+        let sizes: Vec<u32> = vec!{1,4};
+        let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
+
+        let expected: Tensor<f32> = Tensor::from_data(&vec!{1.0}, &vec!{1}).unwrap();
+
+        let result = tensor.matrix_col(0).unwrap();
+
+        assert_eq!(result.get_data(), expected.get_data());
+        assert_eq!(result.get_sizes(), expected.get_sizes());
+    }
+    #[test]
     fn matrix_multiplication(){
         let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
         let sizes1: Vec<u32> = vec!{3,2};

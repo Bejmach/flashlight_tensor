@@ -161,6 +161,30 @@ impl<T: Default + Clone> Tensor<T>{
     pub fn count_data(&self) -> usize{
         self.get_data().len()
     }
+    
+    /// Change the size of tensor if the full size of new_sizes is equal to data.len() stored in
+    /// tensor.
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    /// let a: Tensor<f32> = Tensor::fill(1.0, &[4]);
+    ///
+    /// let b: Tensor<f32> = a.transform(&[1, 4]).unwrap();
+    ///
+    /// assert_eq!(b.get_data(), a.get_data());
+    /// assert_eq!(b.get_sizes(), &vec!{1, 4});
+    /// ```
+    pub fn transform(&self, new_sizes: &[u32]) -> Option<Tensor<T>>{
+        
+        let sizes_prod: u32 = new_sizes.iter().product();
+
+        if(sizes_prod as usize != self.data.len()){
+            return None;
+        }
+
+        Tensor::from_data(&self.data, new_sizes)
+    }
 }
 impl<T> Tensor<T>{
     /// returns an element on position
