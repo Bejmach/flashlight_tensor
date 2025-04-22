@@ -6,7 +6,7 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
-> project not related to "https://github.com/flashlight/flashlight". This is my own project, that I decided to do in free time. Name on crates is already taken by me, so cry about it.
+> project not related to "https://github.com/flashlight/flashlight". Name was decided before I knew about the other flashlight lib. This is my own project, that I decided to do in free time. Name on crates is already taken by me, so cry about it.
 
 ## Features
 - n-dimensional tensors
