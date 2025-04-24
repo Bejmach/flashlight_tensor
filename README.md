@@ -20,7 +20,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.3"
+flashlight_tensor = "0.2.4"
 ```
 
 ## Quick Start
@@ -42,3 +42,8 @@ fn main(){
 ## Tests
 Run tests with:  
 ``cargo test``
+
+### Patch notes
+- V0.2.4:
+  - matrix_vec/col, now return a matrix, not vector
+  - matrix_col/row_sum/prod, return a sum/product of all collumns/rows in matrix

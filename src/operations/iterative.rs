@@ -283,6 +283,17 @@ where
         Tensor::from_data(&return_data, self.get_sizes()).unwrap()
     }
 
+    /// returns the product of each element in tensor
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::fill(2.0, &[3]);
+    /// let prod = a.product();
+    ///
+    /// assert_eq!(prod, 8.0);
+    /// ```
     pub fn product(&self) -> T{
         let mut return_data = self.get_data()[0];
 

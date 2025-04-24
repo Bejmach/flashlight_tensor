@@ -207,7 +207,7 @@ mod matrix_tests{
         let sizes: Vec<u32> = vec!{2,2};
         let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
 
-        let expected: Tensor<f32> = Tensor::from_data(&vec!{1.0, 2.0}, &vec!{2}).unwrap();
+        let expected: Tensor<f32> = Tensor::from_data(&vec!{1.0, 2.0}, &vec!{1, 2}).unwrap();
 
         let result = tensor.matrix_row(0).unwrap();
 
@@ -220,7 +220,7 @@ mod matrix_tests{
         let sizes: Vec<u32> = vec!{2,2};
         let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
 
-        let expected: Tensor<f32> = Tensor::from_data(&vec!{2.0, 4.0}, &vec!{2}).unwrap();
+        let expected: Tensor<f32> = Tensor::from_data(&vec!{2.0, 4.0}, &vec!{2, 1}).unwrap();
 
         let result = tensor.matrix_col(1).unwrap();
 
@@ -233,7 +233,7 @@ mod matrix_tests{
         let sizes: Vec<u32> = vec!{1,4};
         let tensor: Tensor<f32> = Tensor::from_data(&data, &sizes).unwrap();
 
-        let expected: Tensor<f32> = Tensor::from_data(&vec!{1.0}, &vec!{1}).unwrap();
+        let expected: Tensor<f32> = Tensor::from_data(&vec!{1.0}, &vec!{1, 1}).unwrap();
 
         let result = tensor.matrix_col(0).unwrap();
 
