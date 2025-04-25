@@ -168,22 +168,41 @@ impl<T: Default + Clone> Tensor<T>{
     /// # Example
     /// ```
     /// use flashlight_tensor::prelude::*;
-    /// let a: Tensor<f32> = Tensor::fill(1.0, &[4]);
+    /// let mut a: Tensor<f32> = Tensor::fill(1.0, &[4]);
     ///
-    /// let b: Tensor<f32> = a.transform(&[1, 4]).unwrap();
+    /// a.set_size(&[1, 4]);
     ///
-    /// assert_eq!(b.get_data(), a.get_data());
-    /// assert_eq!(b.get_sizes(), &vec!{1, 4});
+    /// assert_eq!(a.get_sizes(), &vec!{1, 4});
     /// ```
-    pub fn transform(&self, new_sizes: &[u32]) -> Option<Tensor<T>>{
+    pub fn set_size(&mut self, new_sizes: &[u32]){
         
         let sizes_prod: u32 = new_sizes.iter().product();
 
         if(sizes_prod as usize != self.data.len()){
-            return None;
+            return;
         }
 
-        Tensor::from_data(&self.data, new_sizes)
+        self.sizes = new_sizes.to_vec();
+    }
+
+    /// Change the data of tensor if the new data has length equal to current data length
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    /// let mut a: Tensor<f32> = Tensor::fill(1.0, &[4]);
+    ///
+    /// a.set_data(&[2.0, 3.0, 4.0, 5.0]);
+    ///
+    /// assert_eq!(a.get_data(), &vec!{2.0, 3.0, 4.0, 5.0});
+    /// ```
+    pub fn set_data(&mut self, new_data: &[T]){
+        if new_data.len() != self.data.len(){
+            println!("Wrong size");
+            return;
+        }
+
+        self.data = new_data.to_vec();
     }
 }
 impl<T> Tensor<T>{

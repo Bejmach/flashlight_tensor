@@ -249,8 +249,8 @@ impl Tensor<f32>{
 
                 let mut mat1_row = self.matrix_row(i).unwrap();
                 let mut mat2_col = tens2.matrix_col(j).unwrap();
-                mat1_row = mat1_row.transform(&[mat1_row.get_data().len() as u32]).unwrap();
-                mat2_col = mat2_col.transform(&[mat2_col.get_data().len() as u32]).unwrap();
+                mat1_row.set_size(&[mat1_row.get_data().len() as u32]);
+                mat2_col.set_size(&[mat2_col.get_data().len() as u32]);
 
                 return_data.push(mat1_row.dot_product(&mat2_col).unwrap());
             }

@@ -43,7 +43,13 @@ fn main(){
 Run tests with:  
 ``cargo test``
 
+
+> G# means github version # of patch. You can treat that as alpha patch of next version. Versions G are avilable on github early, and those features will be released on cargo with next bigger patch.
+> Not everything in G version is tested and working. You are using it at your own responsibility.
 ### Patch notes
 - V0.2.4:
   - matrix_vec/col, now return a matrix, not vector
   - matrix_col/row_sum/prod, return a sum/product of all collumns/rows in matrix
+- V0.2.5
+ - G1
+  - mutable operations for iterative functions
