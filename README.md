@@ -51,5 +51,5 @@ Run tests with:
   - matrix_vec/col, now return a matrix, not vector
   - matrix_col/row_sum/prod, return a sum/product of all collumns/rows in matrix
 - V0.2.5
- - G1
-  - mutable operations for iterative functions
+  - G1
+    - mutable operations for iterative functions
