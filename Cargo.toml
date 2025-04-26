@@ -1,16 +1,14 @@
 [package]
 name = "flashlight_tensor"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2024"
 authors = ["Maciej Bejmowicz <bejmach@gmail.com>"]
-description = "tensor library focused around matrix operations"
+description = "tensor library focused around matrix operations, abandoned"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/Bejmach/flashlight_tensor"
 homepage = "https://github.com/Bejmach/flashlight_tensor"
 documentation = "https://docs.rs/flashlight_tensor"
-keywords = ["tensor", "matrix", "machine-learning"]
-categories = ["data-structures"]
 
 
 [dependencies]

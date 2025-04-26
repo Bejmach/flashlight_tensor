@@ -6,7 +6,20 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
+
+> Package abandoned, use something else
+
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
+
+## Current state of package
+Package abandoned, because I lack knowledge and will for further development.  
+"Flashlight" was supposed to be my small project that I will have fun developing, and with more knowledge I gained on the topic, the more I knew I need to rewrite whole project from base.  
+This is my own decision, and no one can change it. I will still develop a github version, but mostly to learn about machine learning.  
+Once I feel confident in my knowledge, I plan to create another neural network package, with a proper structure and propably a different name.  
+The package will stay on crates but without any updates.
+
+If someone wants to publish a crate with that name, please contact me, and I will transfer the ownershit to you
+
 
 ## Features
 - n-dimensional tensors
