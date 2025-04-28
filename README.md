@@ -6,9 +6,6 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
-
-> Package abandoned, use something else
-
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
 ## Current state of package
@@ -66,3 +63,8 @@ Run tests with:
 - V0.2.5
   - G1
     - mutable operations for iterative functions
+  - G2
+    - better file structure
+
+### Plans for 0.3.0
+- Gpu support using wgpu

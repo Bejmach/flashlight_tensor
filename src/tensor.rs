@@ -198,7 +198,6 @@ impl<T: Default + Clone> Tensor<T>{
     /// ```
     pub fn set_data(&mut self, new_data: &[T]){
         if new_data.len() != self.data.len(){
-            println!("Wrong size");
             return;
         }
 

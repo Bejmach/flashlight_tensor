@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 pub mod tensor;
-pub mod operations;
+pub mod cpu;
 pub mod prelude;
 
 #[cfg(test)]
@@ -111,7 +111,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.tens_mult(&tensor).unwrap();
+        let result_tensor = tensor.tens_mul(&tensor).unwrap();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -164,7 +164,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.mult(2.0);
+        let result_tensor = tensor.mul(2.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -190,7 +190,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.log();
+        let result_tensor = tensor.nlog();
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -253,7 +253,7 @@ mod matrix_tests{
         let expected_data: Vec<f32> = vec!{9.0, 12.0, 15.0, 19.0, 26.0, 33.0, 29.0, 40.0, 51.0};
         let expected_sizes: Vec<u32> = vec!{3,3};
 
-        let result: Tensor<f32> = tensor1.matrix_mult(&tensor2).unwrap();
+        let result: Tensor<f32> = tensor1.matrix_mul(&tensor2).unwrap();
     
         assert_eq!(result.get_data(), &expected_data);
         assert_eq!(result.get_sizes(), &expected_sizes);

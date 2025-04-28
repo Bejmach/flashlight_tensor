@@ -227,12 +227,12 @@ impl Tensor<f32>{
     /// let expected_data: Vec<f32> = vec!{9.0, 12.0, 15.0, 19.0, 26.0, 33.0, 29.0, 40.0, 51.0};
     /// let expected_sizes: Vec<u32> = vec!{3,3};
     ///
-    /// let result: Tensor<f32> = tensor1.matrix_mult(&tensor2).unwrap();
+    /// let result: Tensor<f32> = tensor1.matrix_mul(&tensor2).unwrap();
     ///
     /// assert_eq!(result.get_data(), &expected_data);
     /// assert_eq!(result.get_sizes(), &expected_sizes);
     /// ```
-    pub fn matrix_mult(&self, tens2: &Tensor<f32>) -> Option<Tensor<f32>>{
+    pub fn matrix_mul(&self, tens2: &Tensor<f32>) -> Option<Tensor<f32>>{
         if self.get_sizes().len() != 2{
             return None;
         }
