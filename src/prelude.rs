@@ -14,6 +14,10 @@ pub use crate::{
             matrix::*,
             vector::*,
         },
+        machine_learning::{
+            relu::*,
+            sigmoid::*,
+        },
     }
 };
 
