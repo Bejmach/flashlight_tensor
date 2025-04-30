@@ -6,6 +6,8 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
+> Earlier I decided to abandon the project, but I guess, I still want to work on that project
+
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
 ## Features
