@@ -15,12 +15,13 @@
 - Tensor multiplication and addition
 - Matrix transformation
 - Dot product
+- ReLU and sigmoid
 - CPU only, with GPU support in plans
 
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.4"
+flashlight_tensor = "0.2.6"
 ```
 
 ## Quick Start
@@ -55,6 +56,8 @@ Run tests with:
     - mutable operations for iterative functions
   - G2
     - better file structure
+- V0.2.6
+  - activation functions for neural network
 
 ### Plans for 0.3.0
 - Gpu support using wgpu
