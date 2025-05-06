@@ -26,6 +26,11 @@
 flashlight_tensor = "0.2.6"
 ```
 
+## Documentation
+
+[Docs](https://docs.rs/flashlight_tensor/latest/flashlight_tensor/)  
+> all tensor operations in tensor category
+
 ## Quick Start
 ```rust
 use flashlight_tensor::prelude::*;
@@ -35,12 +40,6 @@ fn main(){
     let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
 }
 ```
-
-## Documentation
-
-[Docs](https://docs.rs/flashlight_tensor/0.2.0/flashlight_tensor/)  
-
-> all tensor operations in tensor category
 
 ## Tests
 Run tests with:  
@@ -60,6 +59,9 @@ Run tests with:
     - better file structure
 - V0.2.6
   - activation functions for neural network
+- V0.2.6
+  - G1
+    - wgpu preparation, currently not working
 
 ### Plans for 0.3.0
 - Gpu support using wgpu

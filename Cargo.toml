@@ -12,3 +12,6 @@ documentation = "https://docs.rs/flashlight_tensor"
 
 
 [dependencies]
+bytemuck = "1.23.0"
+pollster = "0.4.0"
+wgpu = "25.0.0"
