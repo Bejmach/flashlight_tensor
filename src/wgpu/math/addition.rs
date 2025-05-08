@@ -1,4 +1,5 @@
 use crate::tensor::*;
+use crate::wgpu::*;
 
 impl Tensor<f32>{
     /// Add value to each value of tensor
@@ -17,13 +18,23 @@ impl Tensor<f32>{
     /// assert_eq!(b.get_data(), &vec!{3.0, 3.0, 3.0, 3.0})
     /// ```
     pub async fn wgpu_add(&self, var: f32) -> Tensor<f32>{
-        
-        let instance = wgpu::Instance::default();
-        let adapter = instance.request_adapter(&wgpu::RequestAdapterOptionsBase::default()).await.unwrap();
-
+       
+        let (device, queue): (wgpu::Device, wgpu::Queue) = gpu_init().await;
         let input_data: Vec<f32> = self.get_data().to_vec();
+        let buffers: Buffers = input_init(&device, vec!{&input_data, &[var]}, input_data.len());
 
-        
+        if buffers.inputs.len() != 2{
+            return Tensor::new(&[0]);
+        }
+
+        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./shaders/add.wgsl").into()),
+        });
+
+        let (bind_group_layout, bind_group) = get_bind_group(&device, &buffers);
+
+        let (pipeline_layout, pipeline) = get_pipeline(&device, &shader, &bind_group_layout);
 
         return Tensor::new(&[0]);
     }
