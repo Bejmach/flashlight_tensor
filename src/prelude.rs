@@ -18,6 +18,15 @@ pub use crate::{
             relu::*,
             sigmoid::*,
         },
+    },
+    wgpu::{
+        math::{
+            functions::*,
+            addition::*,
+            division::*,
+            multiplication::*,
+            subtraction::*,
+        },
     }
 };
 

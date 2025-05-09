@@ -139,7 +139,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.add(1.0);
+        let result_tensor = tensor.add_cpu(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -338,5 +338,24 @@ mod additional_tests{
         let result = tensor.matrix_to_string().unwrap();
 
         assert_eq!(result, expected);
+    }
+}
+
+#[cfg(test)]
+mod wgpu_tests{
+    use prelude::*;
+    use super::*;
+
+    #[tokio::test]
+    async fn add(){
+        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
+        let adder: f32 = 4.0;
+
+        let tensor = Tensor::from_data(&data, &[4]).unwrap();
+
+        let tensor_cpu = tensor.add_cpu(adder);
+        let tensor_gpu = tensor.add_wgpu(adder).await;
+
+        assert_eq!(tensor_cpu.get_data(), tensor_gpu.get_data());
     }
 }

@@ -13,17 +13,17 @@ impl Tensor<f32>{
     /// //b =
     /// //[3.0, 3.0]
     /// //[3.0, 3.0]
-    /// let b: Tensor<f32> = a.wgpu_add(2.0);
+    /// let b: Tensor<f32> = a.add_wgpu(2.0);
     ///
     /// assert_eq!(b.get_data(), &vec!{3.0, 3.0, 3.0, 3.0})
     /// ```
-    pub async fn wgpu_add(&self, var: f32) -> Tensor<f32>{
+    pub async fn add_wgpu(&self, var: f32) -> Tensor<f32>{
        
         let (device, queue): (wgpu::Device, wgpu::Queue) = gpu_init().await;
         let input_data: Vec<f32> = self.get_data().to_vec();
-        let buffers: Buffers = input_init(&device, vec!{&input_data, &[var]}, input_data.len());
+        let buffers: Buffers = input_init(&device, vec!{&input_data}, &[var], input_data.len());
 
-        if buffers.inputs.len() != 2{
+        if buffers.inputs.len() != 1{
             return Tensor::new(&[0]);
         }
 
@@ -36,7 +36,9 @@ impl Tensor<f32>{
 
         let (pipeline_layout, pipeline) = get_pipeline(&device, &shader, &bind_group_layout);
 
-        return Tensor::new(&[0]);
+        let data = dispatch_and_receive(&device, &pipeline, &bind_group, &queue, input_data.len(), &buffers.output, input_data.len()).await;
+
+        return Tensor::from_data(&data, self.get_sizes()).unwrap();
     }
 }
 
