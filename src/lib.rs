@@ -139,7 +139,7 @@ mod iterative_operation_tests{
 
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
-        let result_tensor = tensor.add_cpu(1.0);
+        let result_tensor = tensor.add(1.0);
         
         assert_eq!(result_tensor.get_data(), &expected);
     }
@@ -353,7 +353,7 @@ mod wgpu_tests{
 
         let tensor = Tensor::from_data(&data, &[4]).unwrap();
 
-        let tensor_cpu = tensor.add_cpu(adder);
+        let tensor_cpu = tensor.add(adder);
         let tensor_gpu = tensor.add_wgpu(adder).await;
 
         assert_eq!(tensor_cpu.get_data(), tensor_gpu.get_data());

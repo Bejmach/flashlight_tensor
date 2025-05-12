@@ -1,58 +1,293 @@
 use wgpu::wgc::instance;
+use wgpu::util::DeviceExt;
+use wgpu::Limits;
+
+use crate::tensor::Tensor;
 
 pub mod math;
 pub mod machine_learning;
 pub mod subtypes;
 
-pub async fn gpu_init() -> (wgpu::Device, wgpu::Queue){
+#[derive(Debug, PartialEq, Eq)]
+pub enum MemoryMetric{
+    GB,
+    MB,
+}
+
+pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Device, wgpu::Queue){
+    if metric == MemoryMetric::MB{
+        let max_buffer_size = max_buffer_size * 1024 * 1024;
+    }
+    else if metric == MemoryMetric::GB{
+        let max_buffer_size = max_buffer_size * 1024 * 1024 * 1024;
+    }
+
+    let limits = Limits{
+        max_buffer_size,
+        ..Limits::downlevel_defaults()
+    };
+
     let instance = wgpu::Instance::default();
     let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions::default())
         .await.expect("No adapter found");
 
-    adapter.request_device(&wgpu::DeviceDescriptor::default())
+    let device_descriptor = wgpu::DeviceDescriptor{
+        label: Some("New Device"),
+        required_features: wgpu::Features::empty(),
+        required_limits: limits,
+        memory_hints: wgpu::MemoryHints::Performance,
+        trace: wgpu::Trace::Off,
+        
+    };
+
+    adapter.request_device(&device_descriptor)
         .await.expect("No device")
 }
 
-pub struct Buffers{
-    inputs: Vec<wgpu::Buffer>,
-    params: wgpu::Buffer,
-    output: wgpu::Buffer,
+fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderModule{
+    let shader: wgpu::ShaderModule;
+
+    if operation == GpuOperations::Add {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/shaders/add.wgsl").into()),
+        });
+    }
+    else {
+        panic!("Gpu operation not permited");
+    }
+
+    shader
 }
 
-pub fn input_init(device: &wgpu::Device, raw_inputs: Vec<&[f32]>, raw_params: &[f32], output_len: usize) -> Buffers{
-    use wgpu::util::DeviceExt;
+#[derive(Debug, PartialEq, Eq)]
+pub enum GpuOperations {
+    Add,
+}
 
-    let mut inputs: Vec<wgpu::Buffer> = Vec::with_capacity(raw_inputs.len());
+pub struct Sample{
+    inputs: Vec<Vec<f32>>,
+    input_shapes: Vec<Vec<u32>>,
+    params: Vec<f32>,
+    output_len: usize,
+    output_shape: Vec<u32>,
+}
 
-    for i in 0..raw_inputs.len(){
-        inputs.push(device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Input"),
-            contents: bytemuck::cast_slice(raw_inputs[i]),
+pub struct GpuData{
+    flat_inputs: Vec<f32>,
+    flat_input_shapes: Vec<u32>,
+    params: Vec<f32>,
+    output_len: u32,
+    output_shape: Vec<u32>,
+}
+
+
+pub struct GpuBuffers{
+    inputs_buffer: wgpu::Buffer,
+    input_shapes_buffer: wgpu::Buffer,
+    params_buffer: wgpu::Buffer,
+    output_buffer: wgpu::Buffer,
+    output_shape: Vec<u32>,
+
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    shader: wgpu::ShaderModule,
+}
+
+pub struct GpuRunner{
+    device: wgpu::Device,
+    queue: wgpu::Queue,
+    shader: wgpu::ShaderModule,
+    buffers: Option<GpuBuffers>,
+}
+
+impl Sample{
+    pub fn from_data(inputs: Vec<Vec<f32>>, input_shapes: Vec<Vec<u32>>, params: Vec<f32>, output_len: usize, output_shape: Vec<u32>) -> Self{
+        Self{
+            inputs,
+            input_shapes,
+            params,
+            output_len,
+            output_shape,
+        }
+    }
+}
+
+impl GpuData{
+    pub fn new() -> Self{
+        Self{
+            flat_inputs: Vec::new(),
+            flat_input_shapes: Vec::new(),
+            params: Vec::new(),
+            output_len: 0,
+            output_shape: Vec::new(),
+        }
+    }
+    pub fn append(&mut self, sample: Sample){
+        let mut flatten_inputs: Vec<f32> = sample.inputs.into_iter().flatten().collect();
+        let flatten_shapes: Vec<u32> = sample.input_shapes.into_iter().flatten().collect();
+
+        if !(self.flat_input_shapes.len() == 0 || self.flat_input_shapes == flatten_shapes){
+            return
+        }
+
+        self.flat_inputs.append(&mut flatten_inputs);
+        self.flat_input_shapes = flatten_shapes;
+    }
+    pub fn set_output_len(&mut self, len: u32){
+        self.output_len = len;
+    }
+    pub fn set_params(&mut self, params: Vec<f32>){
+        self.params = params;
+    }
+}
+
+impl GpuBuffers{
+    pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
+        let (device, queue) = gpu_init(max_buffer_size, metric).await;
+        let buffers: Option<GpuBuffers> = None;
+
+        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/shaders/add.wgsl").into()),
+        });
+
+        let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Input Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_inputs),
             usage: wgpu::BufferUsages::STORAGE,
-        }));
+        });
+
+        let input_shapes_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Shapes Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_input_shapes),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+
+        let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Param Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+        });
+
+        let output_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Output Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+        });
+
+        Self{
+            inputs_buffer,
+            input_shapes_buffer,
+            params_buffer,
+            output_buffer,
+            output_shape: data.output_shape.clone(),
+
+            device,
+            queue,
+            shader,
+        }
+    }
+    pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
+        let (device, queue) = gpu_init(max_buffer_size, metric).await;
+        let buffers: Option<GpuBuffers> = None;
+
+        let shader = get_shader(&device, operation);
+
+        let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Input Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_inputs),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+
+        let input_shapes_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Shapes Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_input_shapes),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+
+        let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Param Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+        });
+
+        let output_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Output Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+        });
+
+        Self{
+            inputs_buffer,
+            input_shapes_buffer,
+            params_buffer,
+            output_buffer,
+            output_shape: data.output_shape.clone(),
+
+            device,
+            queue,
+            shader,
+        }
     }
 
-    let params: wgpu::Buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("param"),
-        contents: bytemuck::cast_slice(raw_params),
-        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
-    });
+    pub fn set_shader(&mut self, operation: GpuOperations){
+        self.shader = get_shader(&self.device, operation);
+    }
 
-    let output = device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("Output Buffer"),
-        size: (output_len * std::mem::size_of::<f32>()) as u64,
-        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
-        mapped_at_creation: false,
-    });
+    //If you know that the size of the 
+    pub fn update(&mut self, data: &GpuData){
+        self.queue.write_buffer(
+            &self.inputs_buffer,
+            0,
+            bytemuck::cast_slice(&data.flat_inputs)
+        );
 
-    Buffers{
-        inputs,
-        params,
-        output,
+        self.queue.write_buffer(
+            &self.input_shapes_buffer,
+            0,
+            bytemuck::cast_slice(&data.flat_input_shapes)
+        );
+
+        self.queue.write_buffer(
+            &self.params_buffer,
+            0,
+            bytemuck::cast_slice(&data.params)
+        );
+    }
+    pub fn rewrite(&mut self, data: &GpuData){
+        let inputs_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Input Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_inputs),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+
+        let input_shapes_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Shapes Buffer"),
+            contents: bytemuck::cast_slice(&data.flat_input_shapes),
+            usage: wgpu::BufferUsages::STORAGE,
+        });
+
+        let params_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Param Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+        });
+
+        let output_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Output Buffer"),
+            contents: bytemuck::cast_slice(&data.params),
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+        });
+
+        self.inputs_buffer = inputs_buffer;
+        self.input_shapes_buffer = input_shapes_buffer;
+        self.params_buffer = params_buffer;
+        self.output_buffer = output_buffer;
     }
 }
 
-pub fn get_bind_group(device: &wgpu::Device, buffers: &Buffers) -> (wgpu::BindGroupLayout, wgpu::BindGroup){
+pub fn get_bind_group(device: &wgpu::Device, buffers: &GpuData) -> (wgpu::BindGroupLayout, wgpu::BindGroup){
     
     let mut bind_group_layout_entries: Vec<wgpu::BindGroupLayoutEntry> = Vec::with_capacity(buffers.inputs.len() + 2);
     let mut bind_group_entries: Vec<wgpu::BindGroupEntry> = Vec::with_capacity(buffers.inputs.len() + 2);
@@ -74,7 +309,7 @@ pub fn get_bind_group(device: &wgpu::Device, buffers: &Buffers) -> (wgpu::BindGr
         bind_group_entries.push(
             wgpu::BindGroupEntry{
                 binding: i as u32,
-                resource: buffers.inputs[i].as_entire_binding(),
+                resource: buffers.inputs.as_entire_binding(),
             }
         );
     }

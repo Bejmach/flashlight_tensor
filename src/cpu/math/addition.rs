@@ -142,11 +142,11 @@ where
     /// //b =
     /// //[3.0, 3.0]
     /// //[3.0, 3.0]
-    /// let b: Tensor<f32> = a.add_cpu(2.0);
+    /// let b: Tensor<f32> = a.add(2.0);
     ///
     /// assert_eq!(b.get_data(), &vec!{3.0, 3.0, 3.0, 3.0})
     /// ```
-    pub fn add_cpu(&self, val: T) -> Tensor<T>{
+    pub fn add(&self, val: T) -> Tensor<T>{
 
         let mut return_data = Vec::with_capacity(self.get_data().len());
 
