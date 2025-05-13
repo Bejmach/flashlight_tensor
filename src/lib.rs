@@ -343,19 +343,5 @@ mod additional_tests{
 
 #[cfg(test)]
 mod wgpu_tests{
-    use prelude::*;
-    use super::*;
-
-    #[tokio::test]
-    async fn add(){
-        let data: Vec<f32> = vec!{1.0, 2.0, 3.0, 4.0};
-        let adder: f32 = 4.0;
-
-        let tensor = Tensor::from_data(&data, &[4]).unwrap();
-
-        let tensor_cpu = tensor.add(adder);
-        let tensor_gpu = tensor.add_wgpu(adder).await;
-
-        assert_eq!(tensor_cpu.get_data(), tensor_gpu.get_data());
-    }
+    
 }

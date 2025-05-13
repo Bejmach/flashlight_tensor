@@ -15,15 +15,21 @@ pub enum MemoryMetric{
 }
 
 pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Device, wgpu::Queue){
+    let mut real_buffer_size: u64;
+
     if metric == MemoryMetric::MB{
-        let max_buffer_size = max_buffer_size * 1024 * 1024;
+        real_buffer_size = max_buffer_size * 1024 * 1024;
     }
     else if metric == MemoryMetric::GB{
-        let max_buffer_size = max_buffer_size * 1024 * 1024 * 1024;
+        real_buffer_size = max_buffer_size * 1024 * 1024 * 1024;
+    }
+    else{
+        real_buffer_size = 1024*1024*256;
     }
 
     let limits = Limits{
-        max_buffer_size,
+        max_buffer_size: real_buffer_size-1,
+        max_storage_buffer_binding_size: ((real_buffer_size/2)-1) as u32,
         ..Limits::downlevel_defaults()
     };
 
@@ -69,7 +75,7 @@ pub struct Sample{
     inputs: Vec<Vec<f32>>,
     input_shapes: Vec<Vec<u32>>,
     params: Vec<f32>,
-    output_len: usize,
+    output_len: u32,
     output_shape: Vec<u32>,
 }
 
@@ -87,6 +93,9 @@ pub struct GpuBuffers{
     input_shapes_buffer: wgpu::Buffer,
     params_buffer: wgpu::Buffer,
     output_buffer: wgpu::Buffer,
+
+    input_len: usize,
+    output_len: usize,
     output_shape: Vec<u32>,
 
     device: wgpu::Device,
@@ -94,21 +103,30 @@ pub struct GpuBuffers{
     shader: wgpu::ShaderModule,
 }
 
-pub struct GpuRunner{
+/*pub struct GpuRunner{
     device: wgpu::Device,
     queue: wgpu::Queue,
     shader: wgpu::ShaderModule,
     buffers: Option<GpuBuffers>,
-}
+}*/
 
 impl Sample{
-    pub fn from_data(inputs: Vec<Vec<f32>>, input_shapes: Vec<Vec<u32>>, params: Vec<f32>, output_len: usize, output_shape: Vec<u32>) -> Self{
+    pub fn from_data(input_tensors: Vec<Tensor<f32>>, params: Vec<f32>, output_tensor: Tensor<f32>) -> Self{
+        let inputs = input_tensors.iter()
+            .map(|tensor| tensor.get_data().clone())
+            .collect();
+        let input_shapes = input_tensors.iter()
+            .map(|tensor| tensor.get_sizes().clone())
+            .collect();
+
+        let output_len: u32 = output_tensor.get_sizes().iter().product();
+
         Self{
             inputs,
             input_shapes,
             params,
             output_len,
-            output_shape,
+            output_shape: output_tensor.get_sizes().to_vec(),
         }
     }
 }
@@ -130,12 +148,17 @@ impl GpuData{
         if !(self.flat_input_shapes.len() == 0 || self.flat_input_shapes == flatten_shapes){
             return
         }
+        if !(self.output_shape.len() == 0 || self.output_shape == sample.output_shape){
+            return
+        }
+        if !(self.params.len() == 0 || self.params == sample.params){
+            return
+        }
 
         self.flat_inputs.append(&mut flatten_inputs);
         self.flat_input_shapes = flatten_shapes;
-    }
-    pub fn set_output_len(&mut self, len: u32){
-        self.output_len = len;
+        self.params = sample.params;
+        self.output_len += sample.output_len;
     }
     pub fn set_params(&mut self, params: Vec<f32>){
         self.params = params;
@@ -155,19 +178,19 @@ impl GpuBuffers{
         let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
             contents: bytemuck::cast_slice(&data.flat_inputs),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let input_shapes_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Shapes Buffer"),
             contents: bytemuck::cast_slice(&data.flat_input_shapes),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Param Buffer"),
             contents: bytemuck::cast_slice(&data.params),
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
         let output_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
@@ -181,11 +204,16 @@ impl GpuBuffers{
             input_shapes_buffer,
             params_buffer,
             output_buffer,
+
+            input_len: data.flat_inputs.len(),
+            output_len: data.output_len as usize,
             output_shape: data.output_shape.clone(),
 
             device,
             queue,
             shader,
+
+
         }
     }
     pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
@@ -197,19 +225,19 @@ impl GpuBuffers{
         let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
             contents: bytemuck::cast_slice(&data.flat_inputs),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let input_shapes_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Shapes Buffer"),
             contents: bytemuck::cast_slice(&data.flat_input_shapes),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let params_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Param Buffer"),
             contents: bytemuck::cast_slice(&data.params),
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
         let output_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
@@ -223,6 +251,9 @@ impl GpuBuffers{
             input_shapes_buffer,
             params_buffer,
             output_buffer,
+
+            input_len: data.flat_inputs.len(),
+            output_len: data.output_len as usize,
             output_shape: data.output_shape.clone(),
 
             device,
@@ -235,7 +266,7 @@ impl GpuBuffers{
         self.shader = get_shader(&self.device, operation);
     }
 
-    //If you know that the size of the 
+    //If you know that the size of the updated data is same as data inside
     pub fn update(&mut self, data: &GpuData){
         self.queue.write_buffer(
             &self.inputs_buffer,
@@ -259,19 +290,19 @@ impl GpuBuffers{
         let inputs_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
             contents: bytemuck::cast_slice(&data.flat_inputs),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let input_shapes_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Shapes Buffer"),
             contents: bytemuck::cast_slice(&data.flat_input_shapes),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
         let params_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Param Buffer"),
             contents: bytemuck::cast_slice(&data.params),
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM,
+            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
         let output_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
@@ -285,74 +316,90 @@ impl GpuBuffers{
         self.params_buffer = params_buffer;
         self.output_buffer = output_buffer;
     }
+
+    pub async fn run(&self) -> Vec<Tensor<f32>>{
+        let (bind_group_layout, bind_group) = get_bind_group(&self.device, &self);
+        let (pipeline_layout, compute_pipeline) = get_pipeline(&self.device, &self.shader, &bind_group_layout);
+
+        let output_data: Vec<f32> = dispatch_and_receive(&self.device, &compute_pipeline, &bind_group, &self.queue, self.input_len, &self.output_buffer, self.output_len).await;
+
+        let sample_size: usize = self.output_shape.iter().product::<u32>() as usize;
+
+        let mut output_vec: Vec<Tensor<f32>> = Vec::with_capacity(output_data.len()/sample_size);
+
+        for i in 0..((output_data.len()/sample_size) - 1){
+            output_vec.push( Tensor::from_data( &output_data[i*sample_size..(i+1)*sample_size], &self.output_shape ).unwrap());
+        }
+
+        output_vec
+    }
 }
 
-pub fn get_bind_group(device: &wgpu::Device, buffers: &GpuData) -> (wgpu::BindGroupLayout, wgpu::BindGroup){
+pub fn get_bind_group(device: &wgpu::Device, buffers: &GpuBuffers) -> (wgpu::BindGroupLayout, wgpu::BindGroup){
     
-    let mut bind_group_layout_entries: Vec<wgpu::BindGroupLayoutEntry> = Vec::with_capacity(buffers.inputs.len() + 2);
-    let mut bind_group_entries: Vec<wgpu::BindGroupEntry> = Vec::with_capacity(buffers.inputs.len() + 2);
-
-    for i in 0..buffers.inputs.len(){
-        bind_group_layout_entries.push(
-            wgpu::BindGroupLayoutEntry{
-                binding: i as u32,
-                visibility: wgpu::ShaderStages::COMPUTE,
-                ty: wgpu::BindingType::Buffer { 
-                    ty: wgpu::BufferBindingType::Storage { read_only: true },
-                    has_dynamic_offset: false, 
-                    min_binding_size: None 
-                },
-                count: None,
-            }
-        );
-
-        bind_group_entries.push(
-            wgpu::BindGroupEntry{
-                binding: i as u32,
-                resource: buffers.inputs.as_entire_binding(),
-            }
-        );
-    }
-    bind_group_layout_entries.push(
+    let bind_group_layout_entries = vec!{
         wgpu::BindGroupLayoutEntry{
-            binding: buffers.inputs.len() as u32,
+            binding: 0,
             visibility: wgpu::ShaderStages::COMPUTE,
-            ty: wgpu::BindingType::Buffer { 
+            ty: wgpu::BindingType::Buffer {
+                ty: wgpu::BufferBindingType::Storage { read_only: true },
+                has_dynamic_offset: false,
+                min_binding_size: None
+            },
+            count: None,
+        },
+        wgpu::BindGroupLayoutEntry{
+            binding: 1,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer {
+                ty: wgpu::BufferBindingType::Storage { read_only: true },
+                has_dynamic_offset: false,
+                min_binding_size: None
+            },
+            count: None,
+        },
+        wgpu::BindGroupLayoutEntry{
+            binding: 2,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer {
                 ty: wgpu::BufferBindingType::Uniform,
-                has_dynamic_offset: false, 
-                min_binding_size: None 
+                has_dynamic_offset: false,
+                min_binding_size: None
             },
             count: None,
-        }
-    );
-
-    bind_group_entries.push(
-        wgpu::BindGroupEntry{
-            binding: buffers.inputs.len() as u32,
-            resource: buffers.params.as_entire_binding(),
-        }
-    );
-
-
-    bind_group_layout_entries.push(
+        },
         wgpu::BindGroupLayoutEntry{
-            binding: (buffers.inputs.len()+1) as u32,
+            binding: 3,
             visibility: wgpu::ShaderStages::COMPUTE,
-            ty: wgpu::BindingType::Buffer { 
+            ty: wgpu::BindingType::Buffer {
                 ty: wgpu::BufferBindingType::Storage { read_only: false },
-                has_dynamic_offset: false, 
-                min_binding_size: None 
+                has_dynamic_offset: false,
+                min_binding_size: None
             },
             count: None,
         }
-    );
-    bind_group_entries.push(
-        wgpu::BindGroupEntry{
-            binding: (buffers.inputs.len()+1) as u32,
-            resource: buffers.output.as_entire_binding(),
-        }
-    );
+    };
 
+    let bind_group_entries = vec!{
+        wgpu::BindGroupEntry{
+            binding: 0,
+            resource: buffers.inputs_buffer.as_entire_binding(),
+        },
+        wgpu::BindGroupEntry{
+            binding: 1,
+            resource: buffers.input_shapes_buffer.as_entire_binding(),
+        },
+        wgpu::BindGroupEntry{
+            binding: 2,
+            resource: buffers.params_buffer.as_entire_binding(),
+        },
+        wgpu::BindGroupEntry{
+            binding: 3,
+            resource: buffers.output_buffer.as_entire_binding(),
+        }
+    };
+
+    
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor{
         label: Some("Bing group layout"),
         entries: &bind_group_layout_entries,

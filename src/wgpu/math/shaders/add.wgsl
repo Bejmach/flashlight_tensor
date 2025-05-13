@@ -1,13 +1,16 @@
 @group(0) @binding(0)
 var<storage, read> input: array<f32>;
 
+@group(0) @binding(1)
+var<storage, read> input_shape: array<f32>;
+
 struct Params {
     adder: f32,
 }
-@group(0) @binding(1)
+@group(0) @binding(2)
 var<uniform> params: Params;
 
-@group(0) @binding(2)
+@group(0) @binding(3)
 var<storage, read_write> output: array<f32>;
 
 @compute @workgroup_size(64)
