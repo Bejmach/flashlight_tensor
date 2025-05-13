@@ -62,6 +62,8 @@ Run tests with:
 - V0.2.6
   - G1
     - wgpu preparation, currently not working
+  - G2
+    - gpu_buffers that allows for running tensor operations on gpu, for now only addition, and cpu preparation unoptimized
 
 ### Plans for 0.3.0
 - Gpu support using wgpu
