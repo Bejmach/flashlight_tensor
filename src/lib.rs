@@ -348,6 +348,10 @@ mod wgpu_tests{
 
     #[tokio::test]
     async fn add(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_shapes();
 
@@ -370,6 +374,10 @@ mod wgpu_tests{
 
     #[tokio::test]
     async fn tens_add(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
 
@@ -393,6 +401,10 @@ mod wgpu_tests{
 
     #[tokio::test]
     async fn matmul(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
 
