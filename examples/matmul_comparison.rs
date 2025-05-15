@@ -3,14 +3,14 @@ use std::time::Instant;
 
 #[tokio::main]
 async fn main(){
-    let iterations = 1;
-    let sizes = 1000000;
+    let iterations = 100;
+    let _sizes = 1000000;
 
     let m = 16;
     let k = 16;
     let n = 16;
 
-    println!("tensors: {}, sizes [{}], total operations: {}\n\n", iterations, sizes, iterations*sizes);
+    println!("iterations: {}, sizes [{}, {}], [{}, {}]\n\n", iterations, m, k, k, n);
 
     let start_init = Instant::now();
 
@@ -23,7 +23,7 @@ async fn main(){
         let tensor1: Tensor<f32> = Tensor::fill(1.0, &[m, k]);
         let tensor2: Tensor<f32> = Tensor::fill(1.0, &[k, n]);
 
-        let sample = Sample::from_data(vec!{tensor1, tensor2}, vec!{}, Tensor::new(&[m, n]));
+        let sample = Sample::from_data(vec!{tensor1, tensor2}, vec!{}, &[m, n]);
         
         gpu_data.append(sample);
     }
@@ -66,7 +66,7 @@ async fn main(){
         let tensor1: Tensor<f32> = Tensor::fill(1.0, &[m, k]);
         let tensor2: Tensor<f32> = Tensor::fill(1.0, &[k, n]);
 
-        let sample = Sample::from_data(vec!{tensor1, tensor2}, vec!{}, Tensor::new(&[m, n]));
+        let sample = Sample::from_data(vec!{tensor1, tensor2}, vec!{}, &[m, n]);
         
         gpu_data.append(sample);
         
@@ -83,7 +83,7 @@ async fn main(){
 
     let start_run = Instant::now();
     
-    let output = buffers.run().await;
+    buffers.run().await;
 
     let duration_run = start_run.elapsed();
 
@@ -97,15 +97,13 @@ async fn main(){
     println!("Cpu bottleneck: {:?}", duration_insert + duration_insert2);
     println!("Only gpu time: {:?}", duration_whole - duration_insert - duration_insert2);
 
-    println!("{:?}", output[0].get_data());
-
     let tensor1: Tensor<f32> = Tensor::fill(1.0, &[m, k]);
     let tensor2: Tensor<f32> = Tensor::fill(1.0, &[k, n]);
 
     let start = Instant::now();
     for _i in 0..(iterations*2){
 
-        tensor1.matrix_mul(&tensor2);
+        tensor1.matrix_mul(&tensor2).unwrap();
     }
     let duration = start.elapsed();
 

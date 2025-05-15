@@ -65,6 +65,12 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./math/addition/add.wgsl").into()),
         });
     }
+    else if operation == GpuOperations::TensAdd {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/addition/tens_add.wgsl").into()),
+        });
+    }
     else if operation == GpuOperations::Matmul {
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
@@ -81,7 +87,8 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
 #[derive(Debug, PartialEq, Eq)]
 pub enum GpuOperations {
     Add,
-    Matmul
+    Matmul,
+    TensAdd,
 }
 
 pub struct Sample{
@@ -130,7 +137,7 @@ pub struct GpuBuffers{
 }*/
 
 impl Sample{
-    pub fn from_data(input_tensors: Vec<Tensor<f32>>, params: Vec<f32>, output_tensor: Tensor<f32>) -> Self{
+    pub fn from_data(input_tensors: Vec<Tensor<f32>>, params: Vec<f32>, output_shape: &[u32]) -> Self{
         let mut inputs: Vec<f32> = Vec::new();
         let mut input_shapes: Vec<u32> = Vec::new();
 
@@ -139,14 +146,14 @@ impl Sample{
             input_shapes.extend_from_slice(input_tensors[i].get_sizes());
         }
 
-        let output_len: u32 = output_tensor.get_sizes().iter().product();
+        let output_len: u32 = output_shape.iter().product();
 
         Self{
             inputs,
             input_shapes,
             params,
             output_len,
-            output_shape: output_tensor.get_sizes().to_vec(),
+            output_shape: output_shape.to_vec(),
         }
     }
 }
@@ -196,7 +203,6 @@ impl GpuData{
 
         if self.flat_input_shapes.len() != 0 && self.flat_input_shapes != sample.input_shapes{
             println!("Shapes does not match");
-            println!("{:?}\n\n{:?}", self.flat_input_shapes, sample.input_shapes);
             return;
         }
         if self.params.len() != 0 && self.params != sample.params{
@@ -452,11 +458,8 @@ impl GpuBuffers{
         let sample_size: usize = self.output_shape.iter().product::<u32>() as usize;
 
         let mut output_vec: Vec<Tensor<f32>> = Vec::with_capacity(output_data.len()/sample_size);
-
-        for i in 0..((output_data.len()/sample_size) - 1){
-            println!("Optput_data: {:?}", output_data);
-            println!("output_shape: {:?}", self.output_shape);
-
+        
+        for i in 0..(output_data.len()/sample_size){
             output_vec.push( Tensor::from_data( &output_data[i*sample_size..(i+1)*sample_size], &self.output_shape ).unwrap());
         }
 
@@ -627,7 +630,6 @@ pub async fn dispatch_and_receive(device: &wgpu::Device, pipeline: &wgpu::Comput
     let data = slice.get_mapped_range();
     let result: Vec<f32> = bytemuck::cast_slice(&data).to_vec();
     
-    println!("{:?}", result);
     result
 }
 

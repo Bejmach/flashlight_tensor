@@ -18,7 +18,7 @@
 - Matrix transformation
 - Dot product
 - ReLU and sigmoid
-- CPU only, with GPU support in plans
+- CPU only, with partial GPU support
 
 ## Instalation
 ```toml
@@ -64,6 +64,8 @@ Run tests with:
     - wgpu preparation, currently not working
   - G2
     - gpu_buffers that allows for running tensor operations on gpu, for now only addition, and cpu preparation unoptimized
+  - G3
+    - first gpu operations and tests, and matmul gpu vs cpu comparison in examples
 
 ### Plans for 0.3.0
 - Gpu support using wgpu
