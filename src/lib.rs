@@ -343,5 +343,52 @@ mod additional_tests{
 
 #[cfg(test)]
 mod wgpu_tests{
+    use prelude::*;
+    use super::*;
+
+    #[tokio::test]
+    async fn add(){
+        let mut gpu_data = GpuData::new();
+        gpu_data.disable_shapes();
+
+        let tensor: Tensor<f32> = Tensor::fill(1.0, &[16, 16]);
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{1.0}, Tensor::new(&[16, 16]));
+        gpu_data.append(sample);
+
+        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        buffers.set_shader(GpuOperations::Add);
+        buffers.prepare();
+
+        let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
+        let gpu_output = full_gpu_output[0].clone();
+
+        let cpu_output = tensor.add(1.0);
+
+        assert_eq!(gpu_output.get_data(), cpu_output.get_data());
+        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+    }
+
+    #[tokio::test]
+    async fn matmul(){
+        let mut gpu_data = GpuData::new();
+        gpu_data.disable_params();
+
+        let tensor1: Tensor<f32> = Tensor::fill(3.0, &[16, 16]);
+        let tensor2: Tensor<f32> = Tensor::fill(5.0, &[16, 16]);
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, Tensor::new(&[16, 16]));
+        gpu_data.append(sample);
+
+        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        buffers.set_shader(GpuOperations::Matmul);
+        buffers.prepare();
+
+        let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
+        let gpu_output = full_gpu_output[0].clone();
+
+        let cpu_output = tensor1.matrix_mul(&tensor2).unwrap();
+
+        assert_eq!(gpu_output.get_data(), cpu_output.get_data());
+        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+    }
     
 }

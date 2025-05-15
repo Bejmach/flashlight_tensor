@@ -19,14 +19,6 @@ pub use crate::{
             sigmoid::*,
         },
     },
-    wgpu::{
-        math::{
-            functions::*,
-            addition::*,
-            division::*,
-            multiplication::*,
-            subtraction::*,
-        },
-    }
+    wgpu::*,
 };
 
