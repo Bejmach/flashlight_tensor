@@ -36,7 +36,7 @@ pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Devi
     };
 
     let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor{
-        backends: Backends::VULKAN,
+        backends: Backends::PRIMARY,
         flags: InstanceFlags::default(),
         backend_options: BackendOptions::default(),
     });
