@@ -24,6 +24,9 @@
 ```toml
 [dependencies]
 flashlight_tensor = "0.2.6"
+
+// Experimental
+flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
 ```
 
 ## Documentation
@@ -66,6 +69,8 @@ Run tests with:
     - gpu_buffers that allows for running tensor operations on gpu, for now only addition, and cpu preparation unoptimized
   - G3
     - first gpu operations and tests, and matmul gpu vs cpu comparison in examples
+  - G4
+    - most operations and tests on gpu, No docs for now
 
 ### Plans for 0.3.0
 - Gpu support using wgpu

@@ -273,4 +273,49 @@ impl<T> Tensor<T>{
 
         self.data[index as usize] = value;
     }
+
+    /// change linear id into global id based on tensor shape
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    /// let mut a: Tensor<f32> = Tensor::new(&[5, 1, 2]);
+    ///
+    /// let global_id = a.idx_to_global(3);
+    ///
+    /// assert_eq!(global_id, vec!{1, 0, 1});
+    /// ```
+    pub fn idx_to_global(&self, idx: u32) -> Vec<u32>{
+        idx_to_global(idx, &self.sizes)
+    }
+}
+
+/// change linear id into global id based on shape
+///
+/// # Example
+/// ```
+/// use flashlight_tensor::prelude::*;
+/// let mut a: Tensor<f32> = Tensor::new(&[5, 1, 2]);
+///
+/// let global_id = a.idx_to_global(3);
+///
+/// assert_eq!(global_id, vec!{1, 0, 1});
+/// ```
+pub fn idx_to_global(idx: u32, shape: &[u32]) -> Vec<u32>{
+    if idx>shape.iter().product::<u32>(){
+        return Vec::new();
+    }
+
+    let mut used_id = idx;
+    let mut shape_prod: u32 = shape.iter().product::<u32>();
+    let mut output_vec: Vec<u32> = Vec::with_capacity(shape.len());
+
+    for i in 0..shape.len(){
+        shape_prod = shape_prod/shape[i];
+
+        output_vec.push(used_id/shape_prod);
+        used_id = used_id%shape_prod;
+    }
+
+    output_vec
 }

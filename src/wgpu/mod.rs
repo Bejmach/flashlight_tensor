@@ -7,9 +7,6 @@ use wgpu::{BackendOptions, Backends, InstanceFlags, Limits};
 
 use crate::tensor::Tensor;
 
-pub mod machine_learning;
-pub mod subtypes;
-
 #[derive(Debug, PartialEq, Eq)]
 pub enum MemoryMetric{
     GB,
@@ -71,10 +68,82 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./math/addition/tens_add.wgsl").into()),
         });
     }
+    else if operation == GpuOperations::Sub {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/subtraction/sub.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::TensSub {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/subtraction/tens_sub.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::Mul {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/multiplication/mul.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::TensMul {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/multiplication/tens_mul.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::NLog {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/functions/nlog.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::Log {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/functions/log.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::Div {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/divistion/div.wgsl").into()),
+        });
+    }
+    else if operation == GpuOperations::TensDiv {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./math/divistion/tens_div.wgsl").into()),
+        });
+    }
     else if operation == GpuOperations::Matmul {
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./math/matrix/matmul.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BroadcastAdd {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./broadcasting/broadcast_add.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BroadcastSub {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./broadcasting/broadcast_sub.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BroadcastMul {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./broadcasting/broadcast_mul.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BroadcastDiv {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./broadcasting/broadcast_div.wgsl").into()),
         })
     }
     else {
@@ -87,13 +156,27 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
 #[derive(Debug, PartialEq, Eq)]
 pub enum GpuOperations {
     Add,
-    Matmul,
     TensAdd,
+    Sub,
+    TensSub,
+    Mul,
+    TensMul,
+    Div,
+    TensDiv,
+    NLog,
+    Log,
+    Matmul,
+    ReLU,
+    Sigmoid,
+    BroadcastAdd,
+    BroadcastSub,
+    BroadcastMul,
+    BroadcastDiv,
 }
 
 pub struct Sample{
     inputs: Vec<f32>,
-    input_shapes: Vec<u32>,
+    shapes: Vec<u32>,
     params: Vec<f32>,
     output_len: u32,
     output_shape: Vec<u32>,
@@ -101,7 +184,7 @@ pub struct Sample{
 
 pub struct GpuData{
     flat_inputs: Vec<f32>,
-    flat_input_shapes: Vec<u32>,
+    flat_shapes: Vec<u32>,
     params: Vec<f32>,
     output_len: u32,
     output_shape: Vec<u32>,
@@ -113,7 +196,7 @@ pub struct GpuData{
 
 pub struct GpuBuffers{
     inputs_buffer: wgpu::Buffer,
-    input_shapes_buffer: Option<wgpu::Buffer>,
+    shapes_buffer: Option<wgpu::Buffer>,
     params_buffer: Option<wgpu::Buffer>,
     output_buffer: wgpu::Buffer,
 
@@ -139,18 +222,19 @@ pub struct GpuBuffers{
 impl Sample{
     pub fn from_data(input_tensors: Vec<Tensor<f32>>, params: Vec<f32>, output_shape: &[u32]) -> Self{
         let mut inputs: Vec<f32> = Vec::new();
-        let mut input_shapes: Vec<u32> = Vec::new();
+        let mut shapes: Vec<u32> = Vec::new();
 
         for i in 0..input_tensors.len(){
             inputs.extend_from_slice(input_tensors[i].get_data());
-            input_shapes.extend_from_slice(input_tensors[i].get_sizes());
+            shapes.extend_from_slice(input_tensors[i].get_sizes());
         }
 
         let output_len: u32 = output_shape.iter().product();
+        shapes.extend_from_slice(output_shape);
 
         Self{
             inputs,
-            input_shapes,
+            shapes,
             params,
             output_len,
             output_shape: output_shape.to_vec(),
@@ -162,7 +246,7 @@ impl GpuData{
     pub fn new() -> Self{
         Self{
             flat_inputs: Vec::new(),
-            flat_input_shapes: Vec::new(),
+            flat_shapes: Vec::new(),
             params: Vec::new(),
             output_len: 0,
             output_shape: Vec::new(),
@@ -174,7 +258,7 @@ impl GpuData{
     pub fn with_capacity(capacity: usize) -> Self{
         Self{
             flat_inputs: Vec::with_capacity(capacity),
-            flat_input_shapes: Vec::new(),
+            flat_shapes: Vec::new(),
             params: Vec::new(),
             output_len: 0,
             output_shape: Vec::new(),
@@ -201,7 +285,7 @@ impl GpuData{
             return
         }
 
-        if self.flat_input_shapes.len() != 0 && self.flat_input_shapes != sample.input_shapes{
+        if self.flat_shapes.len() != 0 && self.flat_shapes != sample.shapes{
             println!("Shapes does not match");
             return;
         }
@@ -214,8 +298,8 @@ impl GpuData{
             return;
         }
 
-        if self.use_shapes && self.flat_input_shapes.len() == 0{
-            self.flat_input_shapes = sample.input_shapes;    
+        if self.use_shapes && self.flat_shapes.len() == 0{
+            self.flat_shapes = sample.shapes;    
         }
         if self.use_params && self.params.len() == 0{
             self.params = sample.params;
@@ -245,20 +329,20 @@ impl GpuBuffers{
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
-        let input_shapes_buffer;
-        if data.flat_input_shapes.len()!=0{
-            input_shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+        let shapes_buffer;
+        if data.flat_shapes.len()!=0 && data.use_shapes{
+            shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
-                contents: bytemuck::cast_slice(&data.flat_input_shapes),
+                contents: bytemuck::cast_slice(&data.flat_shapes),
                 usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             }));
         }
         else{
-            input_shapes_buffer = None;
+            shapes_buffer = None;
         }
         let params_buffer;
 
-        if data.params.len()!=0{
+        if data.params.len()!=0 && data.use_params{
             params_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Param Buffer"),
                 contents: bytemuck::cast_slice(&data.params),
@@ -278,7 +362,7 @@ impl GpuBuffers{
 
         Self{
             inputs_buffer,
-            input_shapes_buffer,
+            shapes_buffer,
             params_buffer,
             output_buffer,
 
@@ -308,20 +392,20 @@ impl GpuBuffers{
 
         let input_shapes_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Shapes Buffer"),
-            contents: bytemuck::cast_slice(&data.flat_input_shapes),
+            contents: bytemuck::cast_slice(&data.flat_shapes),
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
-        let input_shapes_buffer;
-        if data.flat_input_shapes.len()!=0{
-            input_shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+        let shapes_buffer;
+        if data.flat_shapes.len()!=0{
+            shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
-                contents: bytemuck::cast_slice(&data.flat_input_shapes),
+                contents: bytemuck::cast_slice(&data.flat_shapes),
                 usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             }));
         }
         else{
-            input_shapes_buffer = None;
+            shapes_buffer = None;
         }
 
         let params_buffer;
@@ -346,7 +430,7 @@ impl GpuBuffers{
 
         Self{
             inputs_buffer,
-            input_shapes_buffer,
+            shapes_buffer,
             params_buffer,
             output_buffer,
 
@@ -375,11 +459,11 @@ impl GpuBuffers{
             bytemuck::cast_slice(&data.flat_inputs)
         );
 
-        if(self.input_shapes_buffer.is_some()){
+        if(self.shapes_buffer.is_some()){
             self.queue.write_buffer(
-                &self.input_shapes_buffer.as_ref().unwrap(),
+                &self.shapes_buffer.as_ref().unwrap(),
                 0,
-                bytemuck::cast_slice(&data.flat_input_shapes)
+                bytemuck::cast_slice(&data.flat_shapes)
             );
         }
         
@@ -398,16 +482,16 @@ impl GpuBuffers{
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
-        let input_shapes_buffer;
-        if data.flat_input_shapes.len()!=0{
-            input_shapes_buffer = Some(self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+        let shapes_buffer;
+        if data.flat_shapes.len()!=0{
+            shapes_buffer = Some(self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
-                contents: bytemuck::cast_slice(&data.flat_input_shapes),
+                contents: bytemuck::cast_slice(&data.flat_shapes),
                 usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             }));
         }
         else{
-            input_shapes_buffer = None;
+            shapes_buffer = None;
         }
 
         let params_buffer;
@@ -431,7 +515,7 @@ impl GpuBuffers{
         });
 
         self.inputs_buffer = inputs_buffer;
-        self.input_shapes_buffer = input_shapes_buffer;
+        self.shapes_buffer = shapes_buffer;
         self.params_buffer = params_buffer;
         self.output_buffer = output_buffer;
     }
@@ -491,7 +575,7 @@ pub fn get_bind_group_layout(buffers: &GpuBuffers) -> wgpu::BindGroupLayout{
         }
     };
 
-    if buffers.input_shapes_buffer.is_some(){
+    if buffers.shapes_buffer.is_some(){
         bind_group_layout_entries.push(
             wgpu::BindGroupLayoutEntry{
                 binding: 1,
@@ -541,11 +625,11 @@ pub fn get_bind_group(buffers: &GpuBuffers) -> wgpu::BindGroup{
             resource: buffers.output_buffer.as_entire_binding(),
         }
     };
-    if buffers.input_shapes_buffer.is_some(){
+    if buffers.shapes_buffer.is_some(){
         bind_group_entries.push(
             wgpu::BindGroupEntry{
                 binding: 1,
-                resource: buffers.input_shapes_buffer.as_ref().unwrap().as_entire_binding(),
+                resource: buffers.shapes_buffer.as_ref().unwrap().as_entire_binding(),
             }
         );
     }
@@ -596,7 +680,7 @@ pub async fn dispatch_and_receive(device: &wgpu::Device, pipeline: &wgpu::Comput
     });
     {
         let workgroup_size = 64;
-        let total_invocations = input_data_len as u32;
+        let total_invocations = output_len as u32;
         let total_workgroups = (total_invocations + workgroup_size - 1) / workgroup_size;
 
         // 3D split
@@ -610,7 +694,7 @@ pub async fn dispatch_and_receive(device: &wgpu::Device, pipeline: &wgpu::Comput
         });
         compute_pass.set_pipeline(pipeline);
         compute_pass.set_bind_group(0, bind_group, &[]);
-        compute_pass.dispatch_workgroups(x, y.max(1), z.max(1));
+        compute_pass.dispatch_workgroups(x, y.max(1), z);
     }
 
     let staging = device.create_buffer(&wgpu::BufferDescriptor {

@@ -18,6 +18,10 @@ pub use crate::{
             relu::*,
             sigmoid::*,
         },
+        broadcasting::{
+            helpers::*,
+            operations::*,
+        }
     },
     wgpu::*,
 };

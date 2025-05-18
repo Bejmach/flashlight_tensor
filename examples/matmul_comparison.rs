@@ -6,9 +6,9 @@ async fn main(){
     let iterations = 100;
     let _sizes = 1000000;
 
-    let m = 16;
-    let k = 16;
-    let n = 16;
+    let m = 50;
+    let k = 50;
+    let n = 50;
 
     println!("iterations: {}, sizes [{}, {}], [{}, {}]\n\n", iterations, m, k, k, n);
 
