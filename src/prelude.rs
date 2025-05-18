@@ -13,6 +13,7 @@ pub use crate::{
         subtypes::{
             matrix::*,
             vector::*,
+            helpers::*,
         },
         machine_learning::{
             relu::*,

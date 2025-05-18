@@ -1,3 +1,6 @@
+// This file is a total chaos. I dont want to go back to this ever again, but will need to for
+// chunking
+
 use core::panic;
 
 use wgpu::wgc::api::Vulkan;
@@ -13,6 +16,10 @@ pub enum MemoryMetric{
     MB,
 }
 
+/// Initlize a device with size and queue
+/// Max size is 2 GB, because of the WGPU limitations
+///
+/// Most of the time, you wont need to use it
 pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Device, wgpu::Queue){
     let mut real_buffer_size: u64;
 
@@ -53,6 +60,9 @@ pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Devi
         .await.expect("No device")
 }
 
+/// Returns a shader module of operation.
+///
+/// Most of the time, you wont need to use it
 fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderModule{
     let shader: wgpu::ShaderModule;
 
@@ -146,6 +156,12 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./broadcasting/broadcast_div.wgsl").into()),
         })
     }
+    else if operation == GpuOperations::MatrixTranspose {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_transpose.wgsl").into()),
+        })
+    } 
     else {
         panic!("Gpu operation not permited");
     }
@@ -153,6 +169,7 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
     shader
 }
 
+/// Gpu tensor operations supported by this library
 #[derive(Debug, PartialEq, Eq)]
 pub enum GpuOperations {
     Add,
@@ -172,8 +189,10 @@ pub enum GpuOperations {
     BroadcastSub,
     BroadcastMul,
     BroadcastDiv,
+    MatrixTranspose,
 }
 
+/// Sample for one gpu operation
 pub struct Sample{
     inputs: Vec<f32>,
     shapes: Vec<u32>,
@@ -182,6 +201,7 @@ pub struct Sample{
     output_shape: Vec<u32>,
 }
 
+/// Data with all gpu operations that will happen at the same time
 pub struct GpuData{
     flat_inputs: Vec<f32>,
     flat_shapes: Vec<u32>,
@@ -193,7 +213,8 @@ pub struct GpuData{
     use_shapes: bool,
 }
 
-
+/// Buffers needed to perform a gpu operation
+/// Chunking not supported yet, so it has a max limit of data
 pub struct GpuBuffers{
     inputs_buffer: wgpu::Buffer,
     shapes_buffer: Option<wgpu::Buffer>,
@@ -220,6 +241,17 @@ pub struct GpuBuffers{
 }*/
 
 impl Sample{
+    /// Create sample from inputs params and output shape
+    ///
+    /// #Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// //sample.inputs = data{1.0, 1.0, 1.0}, shape{3}
+    /// //sample.params = {1.0}
+    /// //sample.shape = {3}
+    /// let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[3])}, vec!{1.0}, &[3]);
+    /// ```
     pub fn from_data(input_tensors: Vec<Tensor<f32>>, params: Vec<f32>, output_shape: &[u32]) -> Self{
         let mut inputs: Vec<f32> = Vec::new();
         let mut shapes: Vec<u32> = Vec::new();
@@ -243,6 +275,7 @@ impl Sample{
 }
 
 impl GpuData{
+    /// Create new empty GpuData
     pub fn new() -> Self{
         Self{
             flat_inputs: Vec::new(),
@@ -255,6 +288,7 @@ impl GpuData{
             use_params: true,
         }
     }
+    /// Create new empty GpuData with input.capacity = capacity
     pub fn with_capacity(capacity: usize) -> Self{
         Self{
             flat_inputs: Vec::with_capacity(capacity),
@@ -267,19 +301,28 @@ impl GpuData{
             use_shapes: true,
         }
     }
+    /// Disable params for GpuData
+    /// By default params are enabled
     pub fn disable_params(&mut self){
         self.use_params = false;
     }
+    /// Enable params for GpuData
+    /// By default params are enabled
     pub fn enable_params(&mut self){
         self.use_params = true;
     }
-
+    /// Disable shapes for GpuData
+    /// By default shapes are enabled
     pub fn disable_shapes(&mut self){
         self.use_shapes = false;
     }
+    /// Enable shapes for GpuData
+    /// By default shapes are enabled
     pub fn enable_shapes(&mut self){
         self.use_shapes = true;
     }
+    /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
+    /// Is you want to skip later part, disable shapes or params
     pub fn append(&mut self,sample: Sample){
         if !(self.output_shape.len() == 0 || self.output_shape == sample.output_shape){
             return
@@ -311,12 +354,17 @@ impl GpuData{
         self.flat_inputs.extend(sample.inputs);
         self.output_len += sample.output_len;
     }
+    /// Manually set params for GpuData
+    /// Most of the time you wont need to do it, because appending by default changes them for
+    /// sample params
     pub fn set_params(&mut self, params: Vec<f32>){
         self.params = params;
     }
 }
 
 impl GpuBuffers{
+    /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size
+    /// Max buffer size is 2GB because of the WGPU limitations
     pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
         let (device, queue) = gpu_init(max_buffer_size, metric).await;
         let buffers: Option<GpuBuffers> = None;
@@ -378,6 +426,9 @@ impl GpuBuffers{
             pipeline_layout: None,
         }
     }
+    /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size and
+    /// shader
+    /// Max buffer size is 2GB because of the WGPU limitations
     pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
         let (device, queue) = gpu_init(max_buffer_size, metric).await;
         let buffers: Option<GpuBuffers> = None;
@@ -446,12 +497,14 @@ impl GpuBuffers{
             pipeline_layout: None,
         }
     }
-
+    /// Set shader as operation
     pub fn set_shader(&mut self, operation: GpuOperations){
         self.shader = Some(get_shader(&self.device, operation));
     }
 
-    //If you know that the size of the updated data is same as data inside
+    /// Update the buffers without rewriting them. More efficient if doing multiple operations in
+    /// sequence
+    /// If you know that the size of the updated data is same as data inside
     pub fn update(&mut self, data: &GpuData){
         self.queue.write_buffer(
             &self.inputs_buffer,
@@ -475,6 +528,8 @@ impl GpuBuffers{
             );
         }
     }
+    /// Update the buffers by rewriting them. Less efficient if doing multiple operations in
+    /// sequence
     pub fn rewrite(&mut self, data: &GpuData){
         let inputs_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
@@ -519,16 +574,19 @@ impl GpuBuffers{
         self.params_buffer = params_buffer;
         self.output_buffer = output_buffer;
     }
-
+    
+    /// Prepare bind_group_layout and pipeline_layout before running operations
+    /// Use it only after rewriting buffers. Updating buffers does not require preparations
     pub fn prepare(&mut self){
         if self.shader.is_none(){
             panic!("Set shader before running preparation");
         }
 
         self.bind_group_layout = Some(get_bind_group_layout(&self));
-        self.pipeline_layout = Some(get_pipeline_layout(&self.device, self.shader.as_ref().unwrap(), self.bind_group_layout.as_ref().unwrap()));
+        self.pipeline_layout = Some(get_pipeline_layout(&self.device, self.bind_group_layout.as_ref().unwrap()));
     }
-
+    
+    /// Run operation and return data
     pub async fn run(&self) -> Vec<Tensor<f32>>{
         if(self.shader.is_none()){
             panic!("Set shader before running operation");
@@ -551,6 +609,7 @@ impl GpuBuffers{
     }
 }
 
+/// Get bind_group_layout for buffers
 pub fn get_bind_group_layout(buffers: &GpuBuffers) -> wgpu::BindGroupLayout{
     let mut bind_group_layout_entries = vec!{
         wgpu::BindGroupLayoutEntry{
@@ -613,6 +672,7 @@ pub fn get_bind_group_layout(buffers: &GpuBuffers) -> wgpu::BindGroupLayout{
     bind_group_layout
 }
 
+/// Get bind_group for buffers if bind_group_layout present
 pub fn get_bind_group(buffers: &GpuBuffers) -> wgpu::BindGroup{
     
     let mut bind_group_entries = vec!{
@@ -651,7 +711,8 @@ pub fn get_bind_group(buffers: &GpuBuffers) -> wgpu::BindGroup{
     bind_group
 }
 
-pub fn get_pipeline_layout(device: &wgpu::Device, shader: &wgpu::ShaderModule, bind_group_layout: &wgpu::BindGroupLayout) -> wgpu::PipelineLayout{
+/// Get pipeline_layout for bind_group_layout
+pub fn get_pipeline_layout(device: &wgpu::Device, bind_group_layout: &wgpu::BindGroupLayout) -> wgpu::PipelineLayout{
     let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor{
         label: Some("Pipeline layout"),
         bind_group_layouts: &[&bind_group_layout],
@@ -660,6 +721,8 @@ pub fn get_pipeline_layout(device: &wgpu::Device, shader: &wgpu::ShaderModule, b
 
     pipeline_layout
 }
+
+/// Get pipeline for bind_group_layout
 pub fn get_pipeline(device: &wgpu::Device, shader: &wgpu::ShaderModule, pipeline_layout: &wgpu::PipelineLayout) -> wgpu::ComputePipeline{
     let pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor{
         label: Some("Compute pipeline"),
@@ -673,7 +736,9 @@ pub fn get_pipeline(device: &wgpu::Device, shader: &wgpu::ShaderModule, pipeline
     pipeline
 }
 
-
+/// Dispatch and recive data
+///
+/// tbh I propably does not need to write this, because GpuBuffers are handlig it by default
 pub async fn dispatch_and_receive(device: &wgpu::Device, pipeline: &wgpu::ComputePipeline, bind_group: &wgpu::BindGroup, queue: &wgpu::Queue, input_data_len: usize, output_buffer: &wgpu::Buffer, output_len: usize) -> Vec<f32>{
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Encoder"),

@@ -23,7 +23,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.6"
+flashlight_tensor = "0.2.7"
 
 // Experimental
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -35,6 +35,7 @@ flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
 > all tensor operations in tensor category
 
 ## Quick Start
+> For gpu usage go to examples on github
 ```rust
 use flashlight_tensor::prelude::*;
 
@@ -71,6 +72,7 @@ Run tests with:
     - first gpu operations and tests, and matmul gpu vs cpu comparison in examples
   - G4
     - most operations and tests on gpu, No docs for now
+- V0.3.0 - most operations + basic docs
 
-### Plans for 0.3.0
-- Gpu support using wgpu
+### Plans for 0.4.0?
+- Good question, but currently no

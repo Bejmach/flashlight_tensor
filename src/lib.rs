@@ -675,12 +675,17 @@ mod wgpu_tests{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
         gpu_data.append(sample);
 
+        let tensor1: Tensor<f32> = Tensor::fill(5.0, &[3, 1]);
+        let tensor2: Tensor<f32> = Tensor::fill(5.0, &[1, 5]);
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+       gpu_data.append(sample);
+
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(GpuOperations::BroadcastDiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
-        let gpu_output = full_gpu_output[0].clone();
+        let gpu_output = full_gpu_output[1].clone();
 
         let cpu_output = tensor1.tens_broadcast_div(&tensor2).unwrap();
 
@@ -742,5 +747,29 @@ mod wgpu_tests{
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
     }
-    
+    #[tokio::test]
+    async fn matrix_transpose(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
+        let mut gpu_data = GpuData::new();
+        gpu_data.disable_params();
+
+        let tensor: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, &transpose_shapes(tensor.get_sizes()));
+        gpu_data.append(sample);
+
+        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        buffers.set_shader(GpuOperations::MatrixTranspose);
+        buffers.prepare();
+
+        let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
+        let gpu_output = full_gpu_output[0].clone();
+
+        let cpu_output = tensor.matrix_transpose().unwrap();
+
+        assert_eq!(gpu_output.get_data(), cpu_output.get_data());
+        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+    }
 }
