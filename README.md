@@ -77,4 +77,4 @@ Run tests with:
 - V0.3.0 - most operations + basic docs
 
 ### Plans for 0.4.0?
-- Good question, but currently no
+- gpu chunking, maybe something more
