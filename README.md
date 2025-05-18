@@ -10,6 +10,8 @@
 
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
+> If you need to ask, why I posted 2 versions in the same day, its because I set version to 2.7 instead of 3.0
+
 ## Features
 - n-dimensional tensors
 - Element-wise operations
