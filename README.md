@@ -25,7 +25,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.2.7"
+flashlight_tensor = "0.3.0"
 
 // Experimental
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
