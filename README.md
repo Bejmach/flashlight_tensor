@@ -18,9 +18,8 @@
 - Scalar multiplication and addition
 - Tensor multiplication and addition
 - Matrix transformation
-- Dot product
 - ReLU and sigmoid
-- CPU only, with partial GPU support
+- CPU and GPU support
 
 ## Instalation
 ```toml
