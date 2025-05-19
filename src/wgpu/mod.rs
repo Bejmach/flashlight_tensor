@@ -180,6 +180,30 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_relu.wgsl").into()),
         })
     } 
+    else if operation == GpuOperations::MatrixRowSum {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_row_sum.wgsl").into()),
+        })
+    } 
+    else if operation == GpuOperations::MatrixColSum {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_col_sum.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::MatrixRowProd {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_row_prod.wgsl").into()),
+        })
+    } 
+    else if operation == GpuOperations::MatrixColProd {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_col_prod.wgsl").into()),
+        })
+    }
     else {
         panic!("Gpu operation not permited");
     }
@@ -211,6 +235,10 @@ pub enum GpuOperations {
     WeightsBiasMerge,
     WeightsBiasSigmoid,
     WeightsBiasReLU,
+    MatrixRowSum,
+    MatrixRowProd,
+    MatrixColSum,
+    MatrixColProd,
 }
 
 /// Sample for one gpu operation

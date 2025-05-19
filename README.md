@@ -77,6 +77,8 @@ Run tests with:
   - G1
     - Merged forward shaders (matmul + broadcast_add + activation)
     - Renamed "get_sizes" to "get_shape" and "set_size" to "set_shape"
+  - G2
+    - Matrix_col/row_prod/sum on gpu
 
 ### Plans for 0.4.0?
 - gpu chunking
