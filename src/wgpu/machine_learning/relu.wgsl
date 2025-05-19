@@ -5,6 +5,14 @@ var<storage, read> input: array<f32>;
 var<storage, read_write> output: array<f32>;
 
 @compute @workgroup_size(64)
+
+fn relu(x: f32) -> f32{
+	if(x > 0.0){
+		return x;
+	}
+	return 0.0;
+}
+
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 	let idx = global_id.y * 65535u + global_id.x;
@@ -12,12 +20,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 		return;
 	}
 	
-	if (input[idx] > 0){
-		output[idx] = input[idx];
-		return;
-	}
-	else{
-		output[idx] = 0;
-		return;
-	}
+	output[idx] = relu(input[idx]);
 }

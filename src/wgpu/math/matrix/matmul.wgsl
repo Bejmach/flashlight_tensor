@@ -15,29 +15,25 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 		return;
 	}
 
-	let M = u32(input_shape[0]);
-	let K = u32(input_shape[1]);
-	let N = u32(input_shape[3]);
+    let M = input_shape[0];
+    let K = input_shape[1];
+    let N = input_shape[3];
 
-	
-	let matmul_output_size = M * N;
-    let sample_input_size = M * K + K * N;
     let sample_output_size = M * N;
+    let sample_input_size = M * K + K * N;
 
-    // Which output index across batch this is
-    let total_output_idx = idx;
+    if (idx >= arrayLength(&output)) {
+        return;
+    }
 
-    // Figure out which sample we're working on
-    let sample_idx = total_output_idx / sample_output_size;
-    let inner_idx = total_output_idx % sample_output_size;
+    let sample_idx = idx / sample_output_size;
+    let inner_idx = idx % sample_output_size;
 
-    // Row and column in output matrix
     let row = inner_idx / N;
     let col = inner_idx % N;
 
     let offset_inputA = sample_idx * sample_input_size;
     let offset_inputB = offset_inputA + M * K;
-    let offset_output = sample_idx * sample_output_size;
 
     var sum: f32 = 0.0;
     for (var k: u32 = 0u; k < K; k = k + 1u) {
@@ -46,6 +42,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
         sum = sum + a * b;
     }
 
-
-	output[offset_output + row * N + col] = sum;
+    output[idx] = sum;
 }

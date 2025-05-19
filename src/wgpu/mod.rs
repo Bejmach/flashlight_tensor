@@ -161,6 +161,24 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_transpose.wgsl").into()),
         })
+    }
+    else if operation == GpuOperations::WeightsBiasMerge {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_merge.wgsl").into()),
+        })
+    } 
+    else if operation == GpuOperations::WeightsBiasSigmoid {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_sigmoid.wgsl").into()),
+        })
+    } 
+    else if operation == GpuOperations::WeightsBiasReLU {
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_relu.wgsl").into()),
+        })
     } 
     else {
         panic!("Gpu operation not permited");
@@ -190,6 +208,9 @@ pub enum GpuOperations {
     BroadcastMul,
     BroadcastDiv,
     MatrixTranspose,
+    WeightsBiasMerge,
+    WeightsBiasSigmoid,
+    WeightsBiasReLU,
 }
 
 /// Sample for one gpu operation
