@@ -61,7 +61,7 @@ Run tests with:
   - G1
     - mutable operations for iterative functions
   - G2
-    - better file structure
+    -better file structure
 - V0.2.6
   - activation functions for neural network
 - V0.2.6
@@ -74,6 +74,10 @@ Run tests with:
   - G4
     - most operations and tests on gpu, No docs for now
 - V0.3.0 - most operations + basic docs
+  - G1
+    - Merged forward shaders (matmul + broadcast_add + activation)
+    - Renamed "get_sizes" to "get_shape" and "set_size" to "set_shape"
 
 ### Plans for 0.4.0?
-- gpu chunking, maybe something more
+- gpu chunking
+- merged shaders for neural network

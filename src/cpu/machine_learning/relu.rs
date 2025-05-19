@@ -30,7 +30,7 @@ impl Tensor<f32>{
             .map(|val| relu(*val))
             .collect();
 
-        Tensor::from_data(&data_vec, &self.get_sizes()).unwrap()
+        Tensor::from_data(&data_vec, &self.get_shape()).unwrap()
     }
 
     /// Returns a tensor with data transformed using derivative of ReLU function
@@ -50,6 +50,6 @@ impl Tensor<f32>{
             .map(|val| relu_der(*val))
             .collect();
 
-        Tensor::from_data(&data_vec, self.get_sizes()).unwrap()
+        Tensor::from_data(&data_vec, self.get_shape()).unwrap()
     }
 }

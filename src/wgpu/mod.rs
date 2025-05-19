@@ -279,7 +279,7 @@ impl Sample{
 
         for i in 0..input_tensors.len(){
             inputs.extend_from_slice(input_tensors[i].get_data());
-            shapes.extend_from_slice(input_tensors[i].get_sizes());
+            shapes.extend_from_slice(input_tensors[i].get_shape());
         }
 
         let output_len: u32 = output_shape.iter().product();

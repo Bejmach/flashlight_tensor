@@ -1,7 +1,7 @@
-pub fn transpose_shapes(shapes: &[u32]) -> Vec<u32>{
-    if shapes.len() != 2{
+pub fn transpose_shapes(shape: &[u32]) -> Vec<u32>{
+    if shape.len() != 2{
         return Vec::new();
     }
 
-    vec!{shapes[1], shapes[0]}
+    vec!{shape[1], shape[0]}
 }

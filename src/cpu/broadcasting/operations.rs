@@ -18,10 +18,10 @@ where
     /// let b: Tensor<f32> = a.tens_broadcast_add(&b).unwrap();
     ///
     /// assert_eq!(b.get_data(), &vec!{3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0});
-    /// assert_eq!(b.get_sizes(), &vec!{2, 2, 2});
+    /// assert_eq!(b.get_shape(), &vec!{2, 2, 2});
     /// ```
     pub fn tens_broadcast_add(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
-        let broadcast_test = get_broadcast_shape(self.get_sizes(), tens2.get_sizes());
+        let broadcast_test = get_broadcast_shape(self.get_shape(), tens2.get_shape());
         if broadcast_test.is_none(){
             return None;
         }
@@ -32,10 +32,10 @@ where
 
         for i in 0..output_capacity{    
             let output_position = idx_to_global(i, &broadcast_shape);
-            let self_position: Vec<u32> = output_position.iter().zip(self.get_sizes().iter())
+            let self_position: Vec<u32> = output_position.iter().zip(self.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
-            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_sizes().iter())
+            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
 
@@ -63,10 +63,10 @@ where
     /// let b: Tensor<f32> = a.tens_broadcast_sub(&b).unwrap();
     ///
     /// assert_eq!(b.get_data(), &vec!{-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0});
-    /// assert_eq!(b.get_sizes(), &vec!{2, 2, 2});
+    /// assert_eq!(b.get_shape(), &vec!{2, 2, 2});
     /// ```
     pub fn tens_broadcast_sub(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
-        let broadcast_test = get_broadcast_shape(self.get_sizes(), tens2.get_sizes());
+        let broadcast_test = get_broadcast_shape(self.get_shape(), tens2.get_shape());
         if broadcast_test.is_none(){
             return None;
         }
@@ -77,10 +77,10 @@ where
 
         for i in 0..output_capacity{    
             let output_position = idx_to_global(i, &broadcast_shape);
-            let self_position: Vec<u32> = output_position.iter().zip(self.get_sizes().iter())
+            let self_position: Vec<u32> = output_position.iter().zip(self.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
-            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_sizes().iter())
+            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
 
@@ -108,10 +108,10 @@ where
     /// let b: Tensor<f32> = a.tens_broadcast_mul(&b).unwrap();
     ///
     /// assert_eq!(b.get_data(), &vec!{4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0});
-    /// assert_eq!(b.get_sizes(), &vec!{2, 2, 2});
+    /// assert_eq!(b.get_shape(), &vec!{2, 2, 2});
     /// ```
     pub fn tens_broadcast_mul(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
-        let broadcast_test = get_broadcast_shape(self.get_sizes(), tens2.get_sizes());
+        let broadcast_test = get_broadcast_shape(self.get_shape(), tens2.get_shape());
         if broadcast_test.is_none(){
             return None;
         }
@@ -122,10 +122,10 @@ where
 
         for i in 0..output_capacity{    
             let output_position = idx_to_global(i, &broadcast_shape);
-            let self_position: Vec<u32> = output_position.iter().zip(self.get_sizes().iter())
+            let self_position: Vec<u32> = output_position.iter().zip(self.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
-            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_sizes().iter())
+            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
 
@@ -153,10 +153,10 @@ where
     /// let b: Tensor<f32> = a.tens_broadcast_div(&b).unwrap();
     ///
     /// assert_eq!(b.get_data(), &vec!{2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0});
-    /// assert_eq!(b.get_sizes(), &vec!{2, 2, 2});
+    /// assert_eq!(b.get_shape(), &vec!{2, 2, 2});
     /// ```
     pub fn tens_broadcast_div(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
-        let broadcast_test = get_broadcast_shape(self.get_sizes(), tens2.get_sizes());
+        let broadcast_test = get_broadcast_shape(self.get_shape(), tens2.get_shape());
         if broadcast_test.is_none(){
             return None;
         }
@@ -167,10 +167,10 @@ where
 
         for i in 0..output_capacity{    
             let output_position = idx_to_global(i, &broadcast_shape);
-            let self_position: Vec<u32> = output_position.iter().zip(self.get_sizes().iter())
+            let self_position: Vec<u32> = output_position.iter().zip(self.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
-            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_sizes().iter())
+            let tens2_position: Vec<u32> = output_position.iter().zip(tens2.get_shape().iter())
                 .map(|(op, is)| op%is)
                 .collect();
 

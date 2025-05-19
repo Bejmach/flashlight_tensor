@@ -22,7 +22,7 @@ impl Tensor<f32>{
             return_data.push(self.get_data()[i].log10());
         }
 
-        Tensor::from_data(&return_data, self.get_sizes()).unwrap()
+        Tensor::from_data(&return_data, self.get_shape()).unwrap()
     }
     /// Each element transformed to natural log of that element
     ///
@@ -70,7 +70,7 @@ impl Tensor<f32>{
             return_data.push(self.get_data()[i].log(x));
         }
 
-        Tensor::from_data(&return_data, self.get_sizes()).unwrap()
+        Tensor::from_data(&return_data, self.get_shape()).unwrap()
     }
     /// Each element transformed to log of x of that element
     ///

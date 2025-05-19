@@ -1,14 +1,14 @@
 /// The main Tensor struct 
-/// with data and sizes order by [... , z, y, x]
+/// with data and shape order by [... , z, y, x]
 #[derive(Clone)]
 pub struct Tensor<T>{
     data: Vec<T>,
     //..., z, y, x
-    sizes: Vec<u32>,
+    shape: Vec<u32>,
 }
 
 impl<T: Default + Clone> Tensor<T>{
-    /// Creates a new tensor with sizes
+    /// Creates a new tensor with shape
     /// and default values of each element
     ///
     /// # Example
@@ -21,21 +21,21 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// assert_eq!(a.get_data(), &vec!{0.0, 0.0, 0.0, 0.0});
     /// ```
-    pub fn new(_sizes: &[u32]) -> Tensor<T>{
+    pub fn new(_shape: &[u32]) -> Tensor<T>{
         let mut total_size: u32 = 1;
-        for i in 0.._sizes.len(){
-            total_size *= _sizes[i];
+        for i in 0.._shape.len(){
+            total_size *= _shape[i];
         }
         
         Self{
             data: vec![T::default(); total_size as usize],
-            sizes: _sizes.to_vec(),
+            shape: _shape.to_vec(),
         }
     }
 
     /// Creates a new tensor from data
     /// with certain size, or None
-    /// if data does not fit in sizes
+    /// if data does not fit in shape
     ///
     /// # Example
     /// ```
@@ -46,14 +46,14 @@ impl<T: Default + Clone> Tensor<T>{
     /// let a: Tensor<f32> = Tensor::from_data(&vec!{1.0, 2.0, 3.0, 4.0}, &[2, 2]).unwrap();
     /// assert_eq!(a.get_data(), &vec!{1.0, 2.0, 3.0, 4.0});
     /// ```
-    pub fn from_data(_data: &[T], _sizes: &[u32]) -> Option<Self>{
-        if _sizes.iter().product::<u32>() as usize != _data.len(){
+    pub fn from_data(_data: &[T], _shape: &[u32]) -> Option<Self>{
+        if _shape.iter().product::<u32>() as usize != _data.len(){
             return None;
         }
 
         Some(Self{
             data: _data.to_vec(),
-            sizes: _sizes.to_vec(),
+            shape: _shape.to_vec(),
         })
     }
     
@@ -71,12 +71,12 @@ impl<T: Default + Clone> Tensor<T>{
     ///
     /// assert_eq!(a.get_data(), &vec!{1.0, 1.0, 1.0, 1.0});
     /// ```
-    pub fn fill(fill_data: T, _sizes: &[u32]) -> Self{
-        let full_size: u32 = _sizes.iter().product();
+    pub fn fill(fill_data: T, _shape: &[u32]) -> Self{
+        let full_size: u32 = _shape.iter().product();
         
         Self{
             data: vec![fill_data; full_size as usize],
-            sizes: _sizes.to_vec(),
+            shape: _shape.to_vec(),
         }
     }
 
@@ -96,7 +96,7 @@ impl<T: Default + Clone> Tensor<T>{
         return &self.data;
     }
 
-    /// Returns reference to sizes in tensor
+    /// Returns reference to shape in tensor
     /// 
     /// # Example
     /// ```
@@ -104,12 +104,12 @@ impl<T: Default + Clone> Tensor<T>{
     /// let a: Tensor<f32> = Tensor::fill(1.0, &[2, 2]);
     ///
     /// //b = &{2, 2}
-    /// let b = a.get_sizes();
+    /// let b = a.get_shape();
     ///
-    /// assert_eq!(a.get_sizes(), &vec!{2, 2});
+    /// assert_eq!(a.get_shape(), &vec!{2, 2});
     /// ```
-    pub fn get_sizes(&self) -> &Vec<u32>{
-        return &self.sizes;
+    pub fn get_shape(&self) -> &Vec<u32>{
+        return &self.shape;
     }
     /// returns new tensor with data of first tensor + data of second tensor
     /// with size[0] = tensor1.size[0] + tensor2.size[0]
@@ -122,14 +122,14 @@ impl<T: Default + Clone> Tensor<T>{
     /// let b: Tensor<f32> = Tensor::fill(2.0, &[2, 2]);
     ///
     /// //c.data = {1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0}
-    /// //c.sizes = {4, 2}
+    /// //c.shape = {4, 2}
     /// let c: Tensor<f32> = a.append(&b).unwrap();
     ///
     /// assert_eq!(c.get_data(), &vec!{1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0});
-    /// assert_eq!(c.get_sizes(), &vec!{4, 2});
+    /// assert_eq!(c.get_shape(), &vec!{4, 2});
     /// ```
     pub fn append(&self, tens2: &Tensor<T>) -> Option<Self>{
-        if (self.sizes.len() != 1 || tens2.sizes.len() != 1) && self.get_sizes()[1..].to_vec() != tens2.get_sizes()[1..].to_vec(){
+        if (self.shape.len() != 1 || tens2.shape.len() != 1) && self.get_shape()[1..].to_vec() != tens2.get_shape()[1..].to_vec(){
             return None;
         }
 
@@ -138,12 +138,12 @@ impl<T: Default + Clone> Tensor<T>{
         
         return_data.append(&mut append_data);
 
-        let mut return_sizes = self.get_sizes().clone();
-        return_sizes[0] += tens2.get_sizes()[0];
+        let mut return_shape = self.get_shape().clone();
+        return_shape[0] += tens2.get_shape()[0];
 
         Some(Self{
             data: return_data,
-            sizes: return_sizes,
+            shape: return_shape,
         })
     }
     /// counts elements in tensor
@@ -162,7 +162,7 @@ impl<T: Default + Clone> Tensor<T>{
         self.get_data().len()
     }
     
-    /// Change the size of tensor if the full size of new_sizes is equal to data.len() stored in
+    /// Change the size of tensor if the full size of new_shape is equal to data.len() stored in
     /// tensor.
     ///
     /// # Example
@@ -170,19 +170,19 @@ impl<T: Default + Clone> Tensor<T>{
     /// use flashlight_tensor::prelude::*;
     /// let mut a: Tensor<f32> = Tensor::fill(1.0, &[4]);
     ///
-    /// a.set_size(&[1, 4]);
+    /// a.set_shape(&[1, 4]);
     ///
-    /// assert_eq!(a.get_sizes(), &vec!{1, 4});
+    /// assert_eq!(a.get_shape(), &vec!{1, 4});
     /// ```
-    pub fn set_size(&mut self, new_sizes: &[u32]){
+    pub fn set_shape(&mut self, new_shape: &[u32]){
         
-        let sizes_prod: u32 = new_sizes.iter().product();
+        let shape_prod: u32 = new_shape.iter().product();
 
-        if(sizes_prod as usize != self.data.len()){
+        if(shape_prod as usize != self.data.len()){
             return;
         }
 
-        self.sizes = new_sizes.to_vec();
+        self.shape = new_shape.to_vec();
     }
 
     /// Change the data of tensor if the new data has length equal to current data length
@@ -218,22 +218,22 @@ impl<T> Tensor<T>{
     /// assert_eq!(b, &1.0);
     /// ```
     pub fn value(&self, pos: &[u32]) -> Option<&T>{
-        let self_dimensions = self.sizes.len();
+        let self_dimensions = self.shape.len();
         let selector_dimensions = pos.len();
         if self_dimensions - selector_dimensions != 0{
             return None;
         }
         
         for i in 0..pos.len(){
-            if pos[i] >= *self.sizes.get(i).unwrap(){
+            if pos[i] >= *self.shape.get(i).unwrap(){
                 return None;
             }
         }
         let mut index = 0;
         let mut stride = 1;
-        for i in (0..self.sizes.len()).rev() {
+        for i in (0..self.shape.len()).rev() {
             index += pos[i] * stride;
-            stride *= self.sizes[i];
+            stride *= self.shape[i];
         }
 
         Some(&self.data[index as usize])
@@ -253,22 +253,22 @@ impl<T> Tensor<T>{
     /// assert_eq!(a.get_data(), &vec!{5.0, 1.0, 1.0, 1.0});
     /// ```
     pub fn set(&mut self, value: T, pos: &[u32]){
-        let self_dimensions = self.sizes.len();
+        let self_dimensions = self.shape.len();
         let selector_dimensions = pos.len();
         if self_dimensions - selector_dimensions != 0{
             return;
         }
         
         for i in 0..pos.len(){
-            if pos[i] >= *self.sizes.get(i).unwrap(){
+            if pos[i] >= *self.shape.get(i).unwrap(){
                 return;
             }
         }
         let mut index = 0;
         let mut stride = 1;
-        for i in (0..self.sizes.len()).rev() {
+        for i in (0..self.shape.len()).rev() {
             index += pos[i] * stride;
-            stride *= self.sizes[i];
+            stride *= self.shape[i];
         }
 
         self.data[index as usize] = value;
@@ -286,7 +286,7 @@ impl<T> Tensor<T>{
     /// assert_eq!(global_id, vec!{1, 0, 1});
     /// ```
     pub fn idx_to_global(&self, idx: u32) -> Vec<u32>{
-        idx_to_global(idx, &self.sizes)
+        idx_to_global(idx, &self.shape)
     }
 }
 

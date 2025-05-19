@@ -21,7 +21,7 @@ where
     /// assert_eq!(b.get_data(), &vec!{1.0, 1.0, 1.0, 1.0})
     /// ```
     pub fn tens_div(&self, tens2: &Tensor<T>) -> Option<Tensor<T>>{
-        if self.get_sizes() != tens2.get_sizes(){
+        if self.get_shape() != tens2.get_shape(){
             return None;
         }
         
@@ -31,7 +31,7 @@ where
             return_data.push(self.get_data()[i] / tens2.get_data()[i]);
         }
 
-        Tensor::from_data(&return_data, self.get_sizes())
+        Tensor::from_data(&return_data, self.get_shape())
     }
     /// Divide content of one tensor with another
     /// None if different sizes
@@ -53,7 +53,7 @@ where
     /// assert_eq!(a.get_data(), &vec!{1.0, 1.0, 1.0, 1.0})
     /// ```
     pub fn tens_div_mut(&mut self, tens2: &Tensor<T>){
-        if self.get_sizes() != tens2.get_sizes(){
+        if self.get_shape() != tens2.get_shape(){
             return;
         }
         
@@ -88,7 +88,7 @@ where
             return_data.push(self.get_data()[i] / val);
         }
 
-        Tensor::from_data(&return_data, self.get_sizes()).unwrap()
+        Tensor::from_data(&return_data, self.get_shape()).unwrap()
     }
     /// Divide each tensor value by scalar
     ///

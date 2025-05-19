@@ -18,7 +18,7 @@ mod get_tests{
         let tensor = Tensor::from_data(&data, &sizes).unwrap();
 
         assert_eq!(&data, tensor.get_data());
-        assert_eq!(&sizes, tensor.get_sizes());
+        assert_eq!(&sizes, tensor.get_shape());
     }
 
     #[test]
@@ -28,7 +28,7 @@ mod get_tests{
         let expected_sizes: Vec<u32> = vec!{3,3,3};
             
         assert_eq!(tensor.get_data().len(), 27);
-        assert_eq!(tensor.get_sizes(), &expected_sizes);
+        assert_eq!(tensor.get_shape(), &expected_sizes);
     }
     #[test]
     fn get_vector(){
@@ -43,7 +43,7 @@ mod get_tests{
         let expected_sizes: Vec<u32> = vec!{3};
 
         assert_eq!(vector.get_data(), &expected_data);
-        assert_eq!(vector.get_sizes(), &expected_sizes);
+        assert_eq!(vector.get_shape(), &expected_sizes);
     }
 
     #[test]
@@ -56,7 +56,7 @@ mod get_tests{
         let vector = tensor.matrix(&[0]).unwrap();
 
         assert_eq!(vector.get_data(), &data[0..4].to_vec());
-        assert_eq!(vector.get_sizes(), &sizes[1..].to_vec());
+        assert_eq!(vector.get_shape(), &sizes[1..].to_vec());
     }
     #[test]
     fn fill(){
@@ -67,7 +67,7 @@ mod get_tests{
         let expected_data = vec!{1.0; 8};
 
         assert_eq!(tensor.get_data(), &expected_data);
-        assert_eq!(tensor.get_sizes(), &sizes);
+        assert_eq!(tensor.get_shape(), &sizes);
     }
 }
 
@@ -213,7 +213,7 @@ mod matrix_tests{
         let result = tensor.matrix_row(0).unwrap();
 
         assert_eq!(result.get_data(), expected.get_data());
-        assert_eq!(result.get_sizes(), expected.get_sizes());
+        assert_eq!(result.get_shape(), expected.get_shape());
     }
     #[test]
     fn matrix_collumn(){
@@ -226,7 +226,7 @@ mod matrix_tests{
         let result = tensor.matrix_col(1).unwrap();
 
         assert_eq!(result.get_data(), expected.get_data());
-        assert_eq!(result.get_sizes(), expected.get_sizes());
+        assert_eq!(result.get_shape(), expected.get_shape());
     }
     #[test]
     fn matrix_collumn_2(){
@@ -239,7 +239,7 @@ mod matrix_tests{
         let result = tensor.matrix_col(0).unwrap();
 
         assert_eq!(result.get_data(), expected.get_data());
-        assert_eq!(result.get_sizes(), expected.get_sizes());
+        assert_eq!(result.get_shape(), expected.get_shape());
     }
     #[test]
     fn matrix_multiplication(){
@@ -257,7 +257,7 @@ mod matrix_tests{
         let result: Tensor<f32> = tensor1.matrix_mul(&tensor2).unwrap();
     
         assert_eq!(result.get_data(), &expected_data);
-        assert_eq!(result.get_sizes(), &expected_sizes);
+        assert_eq!(result.get_shape(), &expected_sizes);
     }
     #[test]
     fn matrix_transpose(){
@@ -272,7 +272,7 @@ mod matrix_tests{
         let result = tensor.matrix_transpose().unwrap();
 
         assert_eq!(result.get_data(), &expected_data);
-        assert_eq!(result.get_sizes(), &expected_sizes);
+        assert_eq!(result.get_shape(), &expected_sizes);
     }
 }
 
@@ -294,7 +294,7 @@ mod additional_tests{
         let expected_sizes: Vec<u32> = vec!{6};
 
         assert_eq!(result.get_data(), &expected_data);
-        assert_eq!(result.get_sizes(), &expected_sizes);
+        assert_eq!(result.get_shape(), &expected_sizes);
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod additional_tests{
         let expected_sizes: Vec<u32> = vec!{4,2};
 
         assert_eq!(result.get_data(), &expected_data);
-        assert_eq!(result.get_sizes(), &expected_sizes);
+        assert_eq!(result.get_shape(), &expected_sizes);
     }
 
     #[test]
@@ -325,7 +325,7 @@ mod additional_tests{
         result.set(5.0, &[0, 1]);
 
         assert_eq!(result.get_data(), &expected_data);
-        assert_eq!(result.get_sizes(), &expected_sizes);
+        assert_eq!(result.get_shape(), &expected_sizes);
     } 
     #[test]
     fn to_string(){
@@ -369,7 +369,7 @@ mod wgpu_tests{
         let cpu_output = tensor.add(1.0);
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -396,7 +396,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_add(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn sub(){
@@ -421,7 +421,7 @@ mod wgpu_tests{
         let cpu_output = tensor.sub(1.0);
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -448,7 +448,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_sub(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn mul(){
@@ -473,7 +473,7 @@ mod wgpu_tests{
         let cpu_output = tensor.mul(2.0);
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -500,7 +500,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_mul(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn div(){
@@ -525,7 +525,7 @@ mod wgpu_tests{
         let cpu_output = tensor.div(2.0);
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -552,7 +552,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_div(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -579,7 +579,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.matrix_mul(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -593,7 +593,7 @@ mod wgpu_tests{
 
         let tensor1: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 3.0], &[3, 1]).unwrap();
         let tensor2: Tensor<f32> = Tensor::from_data(&[4.0, 5.0, 6.0, 7.0, 8.0], &[1, 5]).unwrap();
-        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -606,7 +606,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_broadcast_add(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     
     #[tokio::test]
@@ -620,7 +620,7 @@ mod wgpu_tests{
 
         let tensor1: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 3.0], &[3, 1]).unwrap();
         let tensor2: Tensor<f32> = Tensor::from_data(&[4.0, 5.0, 6.0, 7.0, 8.0], &[1, 5]).unwrap();
-        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -633,7 +633,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_broadcast_sub(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn broadcast_mul(){
@@ -646,7 +646,7 @@ mod wgpu_tests{
 
         let tensor1: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 3.0], &[3, 1]).unwrap();
         let tensor2: Tensor<f32> = Tensor::from_data(&[4.0, 5.0, 6.0, 7.0, 8.0], &[1, 5]).unwrap();
-        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -659,7 +659,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_broadcast_mul(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn broadcast_div(){
@@ -672,12 +672,12 @@ mod wgpu_tests{
 
         let tensor1: Tensor<f32> = Tensor::fill(2.0, &[3, 1]);
         let tensor2: Tensor<f32> = Tensor::fill(2.0, &[1, 5]);
-        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
         let tensor1: Tensor<f32> = Tensor::fill(5.0, &[3, 1]);
         let tensor2: Tensor<f32> = Tensor::fill(5.0, &[1, 5]);
-        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_sizes(), tensor2.get_sizes()).unwrap());
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
        gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -690,7 +690,7 @@ mod wgpu_tests{
         let cpu_output = tensor1.tens_broadcast_div(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
     #[tokio::test]
     async fn nlog(){
@@ -703,7 +703,7 @@ mod wgpu_tests{
         gpu_data.disable_shapes();
 
         let tensor: Tensor<f32> = Tensor::from_data(&[1.0, 10.0, 100.0], &[3, 1]).unwrap();
-        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, tensor.get_sizes());
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, tensor.get_shape());
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -730,7 +730,7 @@ mod wgpu_tests{
         gpu_data.disable_shapes();
 
         let tensor: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 4.0], &[3, 1]).unwrap();
-        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{2.0}, tensor.get_sizes());
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{2.0}, tensor.get_shape());
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -757,7 +757,7 @@ mod wgpu_tests{
         gpu_data.disable_params();
 
         let tensor: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], &[3, 2]).unwrap();
-        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, &transpose_shapes(tensor.get_sizes()));
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, &transpose_shapes(tensor.get_shape()));
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -770,7 +770,7 @@ mod wgpu_tests{
         let cpu_output = tensor.matrix_transpose().unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -787,7 +787,7 @@ mod wgpu_tests{
         let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, 4.0, 5.0], &[2,2]).unwrap();
         let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
 
-        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_sizes()[0], inputs.get_sizes()[1]]);
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -803,7 +803,7 @@ mod wgpu_tests{
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -820,7 +820,7 @@ mod wgpu_tests{
         let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, -4.0, 5.0], &[2,2]).unwrap();
         let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
 
-        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_sizes()[0], inputs.get_sizes()[1]]);
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -836,7 +836,7 @@ mod wgpu_tests{
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
@@ -853,7 +853,7 @@ mod wgpu_tests{
         let weights: Tensor<f32> = Tensor::from_data(&[2.0, -3.0, 4.0, -5.0], &[2,2]).unwrap();
         let biases: Tensor<f32> = Tensor::from_data(&[3.0, -4.0], &[2,1]).unwrap();
 
-        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_sizes()[0], inputs.get_sizes()[1]]);
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
@@ -869,6 +869,6 @@ mod wgpu_tests{
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
-        assert_eq!(gpu_output.get_sizes(), cpu_output.get_sizes());
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 }
