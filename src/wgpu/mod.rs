@@ -260,6 +260,7 @@ pub struct GpuData{
 
     use_params: bool,
     use_shapes: bool,
+    single_output: bool,
 }
 
 /// Buffers needed to perform a gpu operation
@@ -335,6 +336,7 @@ impl GpuData{
 
             use_shapes: true,
             use_params: true,
+            single_output: false,
         }
     }
     /// Create new empty GpuData with input.capacity = capacity
@@ -348,6 +350,7 @@ impl GpuData{
 
             use_params: true,
             use_shapes: true,
+            single_output: false,
         }
     }
     /// Disable params for GpuData
@@ -369,6 +372,18 @@ impl GpuData{
     /// By default shapes are enabled
     pub fn enable_shapes(&mut self){
         self.use_shapes = true;
+    }
+    /// Enable single output for GpuData
+    /// By default single output is disabled
+    /// Usefull for avg operations
+    pub fn set_single_output(&mut self){
+        self.single_output = true;
+    }
+    /// Disable single output for GpuData
+    /// By default single output is disabled
+    /// Usefull for avg operations
+    pub fn set_multiple_outputs(&mut self){
+        self.single_output = false;
     }
     /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
     /// Is you want to skip later part, disable shapes or params
@@ -401,7 +416,12 @@ impl GpuData{
         }
 
         self.flat_inputs.extend(sample.inputs);
-        self.output_len += sample.output_len;
+        if self.single_output{
+            self.output_len = sample.output_len;
+        }
+        else{
+            self.output_len += sample.output_len;
+        }
     }
     /// Manually set params for GpuData
     /// Most of the time you wont need to do it, because appending by default changes them for
