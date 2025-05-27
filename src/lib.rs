@@ -1005,12 +1005,12 @@ mod wgpu_tests{
         let mut gpu_data = GpuData::new();
         gpu_data.set_single_output();
 
-        let grad_output: Tensor<f32> = Tensor::from_data(&[1.0, 2.0], &[2, 1]).unwrap();
+        let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
-        let relu_cache: Tensor<f32> = Tensor::from_data(&[1.0, 2.0], &[2, 1]).unwrap();
-        let linear_cache: Tensor<f32> = Tensor::from_data(&[0.5, 1.0], &[2, 1]).unwrap();
+        let relu_cache: Tensor<f32> = Tensor::fill(0.420, &[3, 2]);
+        let linear_cache: Tensor<f32> = Tensor::fill(0.2137, &[3, 2]);
 
-        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 2.0], &[2, 1]).unwrap();
+        let weights: Tensor<f32> = Tensor::fill(0.12412, &[3, 3]);
 
         let learning_rate = 0.01;
 

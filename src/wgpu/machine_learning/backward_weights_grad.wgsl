@@ -41,7 +41,7 @@ fn global_to_idx(pos: array<u32, 6>, shape: array<u32, 6>, rank: u32) -> u32 {
     return idx;
 }
 
-fn relu_der(x: f32){
+fn relu_der(x: f32) -> f32{
 	if(x<0.0){
 		return 0.0;
 	}
@@ -52,7 +52,7 @@ fn relu_der(x: f32){
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 	let idx = global_id.y * 65535u + global_id.x;
-	if (idx >= arrayLength(&input)) {
+	if (idx >= arrayLength(&output)) {
 		return;
 	}
 
@@ -62,7 +62,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 	let sample_size = linear_cache_offset + shapes[6] * shapes[7];
 
-	let sample_count = arrayLength(input) / sample_size;
+	let sample_count: u32 = arrayLength(&input) / sample_size;
 
 	var weight_shape: array<u32, 6>;
 	var grad_shape: array<u32, 6>;
@@ -70,13 +70,15 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	var linear_shape: array<u32, 6>;
 
 	for (var i=0; i<2; i++){
-		weight_shape[i] = input[i];
-		grad_shape[i] = input[2+i];
-		relu_shape[i] = input[4+i];
-		linear_shape[i] = input[6+i];
+		weight_shape[i] = shapes[i];
+		grad_shape[i] = shapes[2+i];
+		relu_shape[i] = shapes[4+i];
+		linear_shape[i] = shapes[6+i];
 	}
 
 	let weight_shape_id = idx_to_global(idx, weight_shape, 2);
+	let i_idx = weight_shape_id[0];
+	let j_idx = weight_shape_id[1];
 
 	var grad_shape_id: array<u32, 6>;
 	for (var i=0; i<2; i++){
@@ -91,22 +93,20 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	let linear_shape_id = idx_to_global(idx, weight_shape, 2);
 
 	var sum = 0.0;
-	for (var i=0; i<sample_count; i++){
-		//FIX THIS. THERE SHOULD BE DOT PRODUCT, YOU FUCKING MORON
-		let relu_data = relu_der(input[i * sample_size + relu_cache_offset + idx]);
+	for (var i=0u; i<sample_count; i++){
+		let relu_data = relu_der(input[i * sample_size + relu_cache_offset + i_idx]);
 		var dot_sum = 0.0;
-		if(relu_data!=0.0){
-			for (var j = 0; j<weight_shape[1]; j++){
-				var grad_idx = i*sample_size + grad_offset + grad_shape_id[0]*grad_shape[1] + j%grad_shape_id[i];
-				var linear_idx = i*sample_size + grad_offset + linear_shape_id[1] * linear_shape[1] + j;
+		for (var j = 0u; j<grad_shape[1]; j++){	
+			let grad_idx = i * sample_size + grad_offset + i_idx * grad_shape[1] + j;
+			let linear_idx = i * sample_size + linear_cache_offset + j * linear_shape[1] + j_idx;
 
-				dot_sum += input[grad_idx] * input[linear_idx];
-			}
+
+			dot_sum += input[grad_idx] * input[linear_idx];
 		}
 
 		
 		sum += relu_data * dot_sum;
 	}
 	
-	output[idx] = input[idx] - ((sum/sample_count)*params.learning_rate); 
+	output[idx] = input[idx] - ((sum/f32(sample_count))*params.learning_rate); 
 }
