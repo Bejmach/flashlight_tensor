@@ -995,4 +995,47 @@ mod wgpu_tests{
         }
         assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     } 
+
+    #[tokio::test]
+    async fn backprop_merged_weights(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
+        let mut gpu_data = GpuData::new();
+        gpu_data.set_single_output();
+
+        let grad_output: Tensor<f32> = Tensor::from_data(&[1.0, 2.0], &[2, 1]).unwrap();
+
+        let relu_cache: Tensor<f32> = Tensor::from_data(&[1.0, 2.0], &[2, 1]).unwrap();
+        let linear_cache: Tensor<f32> = Tensor::from_data(&[0.5, 1.0], &[2, 1]).unwrap();
+
+        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 2.0], &[2, 1]).unwrap();
+
+        let learning_rate = 0.01;
+
+        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), relu_cache.clone(), linear_cache.clone()}, vec!{learning_rate}, weights.get_shape());
+
+        gpu_data.append(sample);
+
+        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        buffers.set_shader(GpuOperations::BackpropWeightsMerge);
+        buffers.prepare();
+
+        let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
+        let gpu_output = full_gpu_output[0].clone();
+    
+        let relu_output = relu_cache.relu_der().tens_broadcast_mul(&grad_output).unwrap();
+
+        let weights_output = relu_output.matrix_mul(&linear_cache.matrix_transpose().unwrap()).unwrap();
+        
+        let cpu_output = weights.tens_sub(&weights_output.mul(learning_rate)).unwrap();
+
+        assert_eq!(gpu_output.get_data(), cpu_output.get_data());
+        let epsilon = 1e-5;
+        for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
+            assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
+        }
+        assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
+    } 
 }

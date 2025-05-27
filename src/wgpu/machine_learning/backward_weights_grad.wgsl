@@ -88,23 +88,25 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 		}
 	}
 
-	let grad_idx = global_to_idx(grad_shape_id, grad_shape, 2);
-
 	let linear_shape_id = idx_to_global(idx, weight_shape, 2);
-	var linear_fixed_id: array<u32, 6>;
-	linear_fixed_id[0] = linear_shape_id[1];
-	linear_fixed_id[1] = linear_shape_id[0];
-	let linear_idx = global_to_idx(linear_fixed_id, linear_shape, 2);
 
 	var sum = 0.0;
 	for (var i=0; i<sample_count; i++){
 		//FIX THIS. THERE SHOULD BE DOT PRODUCT, YOU FUCKING MORON
 		let relu_data = relu_der(input[i * sample_size + relu_cache_offset + idx]);
-		let grad_data = input[i * sample_size + grad_offset + grad_idx];
-		let linear_data = input[i * sample_size + linear_cache_offset + linear_idx];
+		var dot_sum = 0.0;
+		if(relu_data!=0.0){
+			for (var j = 0; j<weight_shape[1]; j++){
+				var grad_idx = i*sample_size + grad_offset + grad_shape_id[0]*grad_shape[1] + j%grad_shape_id[i];
+				var linear_idx = i*sample_size + grad_offset + linear_shape_id[1] * linear_shape[1] + j;
 
-		let grad_data = relu_data * grad_data 
+				dot_sum += input[grad_idx] * input[linear_idx];
+			}
+		}
+
+		
+		sum += relu_data * dot_sum;
 	}
 	
-	//output[idx] =  
+	output[idx] = input[idx] - ((sum/sample_count)*params.learning_rate); 
 }

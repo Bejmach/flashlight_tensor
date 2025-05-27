@@ -204,6 +204,12 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_col_prod.wgsl").into()),
         })
     }
+    else if operation == GpuOperations::BackpropWeightsMerge{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weights_grad.wgsl").into()),
+        })
+    }
     else {
         panic!("Gpu operation not permited");
     }
@@ -239,6 +245,7 @@ pub enum GpuOperations {
     MatrixRowProd,
     MatrixColSum,
     MatrixColProd,
+    BackpropWeightsMerge,
 }
 
 /// Sample for one gpu operation
