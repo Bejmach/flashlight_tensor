@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read> input: array<f32>; //self_weights, grad_output, relu_cache, linear_cache
+var<storage, read> input: array<f32>; //self_weights, grad_output, linear_cache, relu_cache
 
 @group(0) @binding(1)
 var<storage, read> shapes: array<u32>;
@@ -57,10 +57,10 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	}
 
 	let grad_offset = shapes[0] * shapes[1];
-	let relu_cache_offset = grad_offset + shapes[2] * shapes[3];
-	let linear_cache_offset = relu_cache_offset + shapes[4] * shapes[5];
+	let linear_cache_offset = grad_offset + shapes[2] * shapes[3];
+	let relu_cache_offset = linear_cache_offset + shapes[4] * shapes[5];
 
-	let sample_size = linear_cache_offset + shapes[6] * shapes[7];
+	let sample_size = relu_cache_offset + shapes[6] * shapes[7];
 
 	let sample_count: u32 = arrayLength(&input) / sample_size;
 
@@ -72,8 +72,8 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	for (var i=0; i<2; i++){
 		weight_shape[i] = shapes[i];
 		grad_shape[i] = shapes[2+i];
-		relu_shape[i] = shapes[4+i];
-		linear_shape[i] = shapes[6+i];
+		linear_shape[i] = shapes[4+i];
+		relu_shape[i] = shapes[6+i];
 	}
 
 	let weight_shape_id = idx_to_global(idx, weight_shape, 2);
