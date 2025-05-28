@@ -4,7 +4,6 @@ use std::time::Instant;
 #[tokio::main]
 async fn main(){
     let iterations = 100;
-    let _sizes = 1000000;
 
     let m = 50;
     let k = 50;

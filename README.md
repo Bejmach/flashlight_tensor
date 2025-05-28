@@ -6,11 +6,9 @@
 
 > Tensor library written in pure rust, designed mostly for matrix operations  
 
-> Earlier I decided to abandon the project, but I guess, I still want to work on that project
-
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
-> If you need to ask, why I posted 2 versions in the same day, its because I set version to 2.7 instead of 3.0
+> I know this is maintained tragically, don't judge.
 
 ## Features
 - n-dimensional tensors
@@ -26,7 +24,7 @@
 [dependencies]
 flashlight_tensor = "0.3.0"
 
-// Experimental
+# Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
 ```
 
@@ -52,7 +50,7 @@ Run tests with:
 
 
 > G# means github version # of patch. You can treat that as alpha patch of next version. Versions G are avilable on github early, and those features will be released on cargo with next bigger patch.
-> Not everything in G version is tested and working. You are using it at your own responsibility.
+> Not everything in G version is tested and working but main branch, should contain everything that is listed here. You are using it at your own responsibility.
 ### Patch notes
 - V0.2.4:
   - matrix_vec/col, now return a matrix, not vector
