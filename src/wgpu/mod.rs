@@ -59,7 +59,6 @@ pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Devi
     adapter.request_device(&device_descriptor)
         .await.expect("No device")
 }
-
 /// Returns a shader module of operation.
 ///
 /// Most of the time, you wont need to use it
@@ -67,6 +66,7 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
     let shader: wgpu::ShaderModule;
 
     if operation == GpuOperations::Add {
+        
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./math/addition/add.wgsl").into()),
@@ -204,10 +204,22 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_col_prod.wgsl").into()),
         })
     }
-    else if operation == GpuOperations::BackpropWeightsMerge{
+    else if operation == GpuOperations::BackpropWeightMergeNoActiv{
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weights_grad.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weight_grad_no_activ.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropWeightMergeSigmoid{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weight_grad_sigmoid.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropWeightMergeRelu{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weight_grad_relu.wgsl").into()),
         })
     }
     else {
@@ -245,7 +257,9 @@ pub enum GpuOperations {
     MatrixRowProd,
     MatrixColSum,
     MatrixColProd,
-    BackpropWeightsMerge,
+    BackpropWeightMergeNoActiv,
+    BackpropWeightMergeSigmoid,
+    BackpropWeightMergeRelu,
 }
 
 /// Sample for one gpu operation

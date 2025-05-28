@@ -1019,7 +1019,7 @@ mod wgpu_tests{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropWeightsMerge);
+        buffers.set_shader(GpuOperations::BackpropWeightMergeRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
