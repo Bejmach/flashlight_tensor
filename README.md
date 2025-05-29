@@ -17,12 +17,13 @@
 - Tensor multiplication and addition
 - Matrix transformation
 - ReLU and sigmoid
+- forward/backward propagation merged operations on gpu
 - CPU and GPU support
 
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.3.0"
+flashlight_tensor = "0.3.1"
 
 # Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -51,6 +52,7 @@ Run tests with:
 
 > G# means github version # of patch. You can treat that as alpha patch of next version. Versions G are avilable on github early, and those features will be released on cargo with next bigger patch.
 > Not everything in G version is tested and working but main branch, should contain everything that is listed here. You are using it at your own responsibility.
+> P means planned, and tells, what is planned for next versions
 ### Patch notes
 - V0.2.4:
   - matrix_vec/col, now return a matrix, not vector
@@ -77,7 +79,11 @@ Run tests with:
     - Renamed "get_sizes" to "get_shape" and "set_size" to "set_shape"
   - G2
     - Matrix_col/row_prod/sum on gpu
+- V0.3.1 - gpu only backward/forward propagation merged operations, kinda hard to perform, will try to abstact it into gpu_runner
+  - P G1
+    - examples, with merged machine learning operations runtime
+- P V0.3.2 - gpu_runner
 
 ### Plans for 0.4.0?
 - gpu chunking
-- merged shaders for neural network
+- gpu_runner for easier gpu operations

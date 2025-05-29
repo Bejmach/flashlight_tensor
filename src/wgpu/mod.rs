@@ -162,19 +162,19 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./subtypes/matrix_transpose.wgsl").into()),
         })
     }
-    else if operation == GpuOperations::WeightsBiasMerge {
+    else if operation == GpuOperations::ForwardWeightBiasNoActiv {
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_merge.wgsl").into()),
         })
     } 
-    else if operation == GpuOperations::WeightsBiasSigmoid {
+    else if operation == GpuOperations::ForwardWeightBiasSigmoid {
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_sigmoid.wgsl").into()),
         })
     } 
-    else if operation == GpuOperations::WeightsBiasReLU {
+    else if operation == GpuOperations::ForwardWeightBiasRelu {
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/weight_bias_relu.wgsl").into()),
@@ -240,19 +240,19 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_bias_grad_relu.wgsl").into()),
         })
     }
-    else if operation == GpuOperations::BackpropInputMergeNoActiv{
+    else if operation == GpuOperations::BackpropGradientMergeNoActiv{
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_no_activ.wgsl").into()),
         })
     }
-    else if operation == GpuOperations::BackpropInputMergeSigmoid{
+    else if operation == GpuOperations::BackpropGradientMergeSigmoid{
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_sigmoid.wgsl").into()),
         })
     }
-    else if operation == GpuOperations::BackpropInputMergeRelu{
+    else if operation == GpuOperations::BackpropGradientMergeRelu{
         shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
             label: Some("WGSL Shader"),
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_relu.wgsl").into()),
@@ -286,22 +286,22 @@ pub enum GpuOperations {
     BroadcastMul,
     BroadcastDiv,
     MatrixTranspose,
-    WeightsBiasMerge,
-    WeightsBiasSigmoid,
-    WeightsBiasReLU,
     MatrixRowSum,
     MatrixRowProd,
     MatrixColSum,
     MatrixColProd,
+    ForwardWeightBiasNoActiv,
+    ForwardWeightBiasSigmoid,
+    ForwardWeightBiasRelu,
     BackpropWeightMergeNoActiv,
     BackpropWeightMergeSigmoid,
     BackpropWeightMergeRelu,
     BackpropBiasMergeNoActiv,
     BackpropBiasMergeRelu,
     BackpropBiasMergeSigmoid,
-    BackpropInputMergeNoActiv,
-    BackpropInputMergeRelu,
-    BackpropInputMergeSigmoid,
+    BackpropGradientMergeNoActiv,
+    BackpropGradientMergeRelu,
+    BackpropGradientMergeSigmoid,
 }
 
 /// Sample for one gpu operation

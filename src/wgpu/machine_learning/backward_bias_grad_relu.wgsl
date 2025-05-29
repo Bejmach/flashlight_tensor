@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read> input: array<f32>; //self_biases, grad_output, relu_cache, linear_cache
+var<storage, read> input: array<f32>; //self_biases, grad_output, linear_cache, relu_cache
 
 @group(0) @binding(1)
 var<storage, read> shapes: array<u32>;
@@ -101,9 +101,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 			row_sum += input[grad_idx];
 		}
+
 		
-		sum += relu_data * dot_sum;
+		sum += row_sum*relu_data;
 	}
+    sum = sum/f32(linear_shape[0]);
 	
 	output[idx] = input[idx] - ((sum/f32(sample_count))*params.learning_rate); 
 }

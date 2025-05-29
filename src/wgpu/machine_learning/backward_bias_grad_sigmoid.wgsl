@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read> input: array<f32>; //self_biases, grad_output, relu_cache, linear_cache
+var<storage, read> input: array<f32>; //self_biases, grad_output, linear_cache, sigmoid_cache
 
 @group(0) @binding(1)
 var<storage, read> shapes: array<u32>;
@@ -95,16 +95,18 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 	var sum = 0.0;
 	for (var i=0u; i<sample_count; i++){
-		let relu_data = sigmoid_der(input[i * sample_size + relu_cache_offset + i_idx]);
+		let sigmoid_data = sigmoid_der(input[i * sample_size + sigmoid_cache_offset + i_idx]);
 		var row_sum = 0.0;
 		for (var j = 0u; j<grad_shape[1]; j++){	
 			let grad_idx = i * sample_size + grad_offset + i_idx * grad_shape[1] + j;
 
 			row_sum += input[grad_idx];
 		}
+
 		
-		sum += relu_data * dot_sum;
+		sum += row_sum*sigmoid_data;
 	}
+    sum = sum/f32(linear_shape[0]);
 	
 	output[idx] = input[idx] - ((sum/f32(sample_count))*params.learning_rate); 
 }
