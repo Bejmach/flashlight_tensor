@@ -49,9 +49,7 @@ impl<T> Tensor<T>
 where 
     T: Default + std::ops::Sub<Output = T> + Copy,
 {
-    /// Add the tensor to each row of first tensor
-    /// !!! It is possible to add tensor 2x3 to tensor 3x2
-    /// because the function only checks the data length
+    /// broadcast subtract data of second vector to first vector
     ///
     /// # Example
     /// ```
@@ -94,9 +92,7 @@ impl<T> Tensor<T>
 where 
     T: Default + std::ops::Mul<Output = T> + Copy,
 {
-    /// Add the tensor to each row of first tensor
-    /// !!! It is possible to add tensor 2x3 to tensor 3x2
-    /// because the function only checks the data length
+    /// broadcast multiply data of second vector to first vector
     ///
     /// # Example
     /// ```
@@ -139,9 +135,7 @@ impl<T> Tensor<T>
 where 
     T: Default + std::ops::Div<Output = T> + Copy,
 {
-    /// Add the tensor to each row of first tensor
-    /// !!! It is possible to add tensor 2x3 to tensor 3x2
-    /// because the function only checks the data length
+    /// broadcast divide data of second vector to first vector
     ///
     /// # Example
     /// ```
