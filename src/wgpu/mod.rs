@@ -222,6 +222,42 @@ fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderMo
             source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_weight_grad_relu.wgsl").into()),
         })
     }
+    else if operation == GpuOperations::BackpropBiasMergeNoActiv{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_bias_grad_no_activ.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropBiasMergeSigmoid{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_bias_grad_sigmoid.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropBiasMergeRelu{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_bias_grad_relu.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropInputMergeNoActiv{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_no_activ.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropInputMergeSigmoid{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_sigmoid.wgsl").into()),
+        })
+    }
+    else if operation == GpuOperations::BackpropInputMergeRelu{
+        shader = device.create_shader_module(wgpu::ShaderModuleDescriptor{
+            label: Some("WGSL Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("./machine_learning/backward_input_grad_relu.wgsl").into()),
+        })
+    }
     else {
         panic!("Gpu operation not permited");
     }
@@ -260,6 +296,12 @@ pub enum GpuOperations {
     BackpropWeightMergeNoActiv,
     BackpropWeightMergeSigmoid,
     BackpropWeightMergeRelu,
+    BackpropBiasMergeNoActiv,
+    BackpropBiasMergeRelu,
+    BackpropBiasMergeSigmoid,
+    BackpropInputMergeNoActiv,
+    BackpropInputMergeRelu,
+    BackpropInputMergeSigmoid,
 }
 
 /// Sample for one gpu operation
