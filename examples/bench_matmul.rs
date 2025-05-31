@@ -1,4 +1,4 @@
-use flashlight_tensor::{prelude::*, wgpu::{GpuBuffers, GpuData, GpuOperations, MemoryMetric, Sample}};
+use flashlight_tensor::prelude::*;
 use std::time::Instant;
 
 #[tokio::main]

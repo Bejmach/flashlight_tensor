@@ -38,9 +38,9 @@ fn global_to_idx(pos: array<u32, 6>, shape: array<u32, 6>, rank: u32) -> u32 {
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let idx = global_id.y * 65535u + global_id.x;
-	if (idx >= arrayLength(&output)) {
-		return;
-	}
+    if (idx >= arrayLength(&output)) {
+        return;
+    }
 
     let shape_len = arrayLength(&shapes) / 3u;
 
@@ -54,7 +54,22 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         o_shape[i] = shapes[2u * shape_len + i];
     }
 
-    let output_pos = idx_to_global(idx, o_shape, shape_len);
+    var input1_sample_size = 1u;
+    var input2_sample_size = 1u;
+    var output_sample_size = 1u;
+
+    for (var i = 0u; i < shape_len; i++) {
+        input1_sample_size *= a_shape[i];
+        input2_sample_size *= b_shape[i];
+        output_sample_size *= o_shape[i];
+    }
+
+    let sample_size = input1_sample_size + input2_sample_size;
+
+    let sample_id: u32 = idx / output_sample_size;
+    let sample_local_idx: u32 = idx % output_sample_size;
+
+    let output_pos = idx_to_global(sample_local_idx, o_shape, shape_len);
 
     var input1_pos: array<u32, 6>;
     var input2_pos: array<u32, 6>;
@@ -66,6 +81,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 		else{
 			input1_pos[i] = output_pos[i];
 		}
+
 		if (b_shape[i] == 1u){
 			input2_pos[i] = 0u;
 		}
@@ -74,20 +90,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 		}
     }
 
-    let input1_offset = global_to_idx(input1_pos, a_shape, shape_len);
-    let input2_offset = global_to_idx(input2_pos, b_shape, shape_len);
+    let input1_offset = global_to_idx(input1_pos, a_shape, shape_len) + sample_id * sample_size;
+    let input2_offset = global_to_idx(input2_pos, b_shape, shape_len) + sample_id * sample_size + input1_sample_size;
 
-    
-	// Compute size of first input
-	var input1_size = 1u;
-	for (var i = 0u; i < shape_len; i++) {
-        input1_size *= a_shape[i];
-	}
-		
+    let input1_val = input[input1_offset];
+    let input2_val = input[input2_offset];
 
-	// Offset to second tensor = input1_size
-	let input1_val = input[input1_offset];
-	let input2_val = input[input2_offset + input1_size];
-
-	output[idx] = input1_val + input2_val;
+    output[idx] = input1_val + input2_val;
 }

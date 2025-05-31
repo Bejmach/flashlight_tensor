@@ -24,6 +24,12 @@ pub use crate::{
             operations::*,
         }
     },
-    wgpu::*,
+    wgpu::runners::{
+        sample::*,
+        gpu_data::*,
+        gpu_buffers::*,
+        shaders::*,
+        helpers::*,
+    },
 };
 

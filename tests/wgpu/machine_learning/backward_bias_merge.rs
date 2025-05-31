@@ -9,7 +9,7 @@ mod backward_bias_merge{
             return;
         }
         let mut gpu_data = GpuData::new();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -25,7 +25,7 @@ mod backward_bias_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropBiasMergeRelu);
+        buffers.set_shader(GpuOperations::BackwardBiasRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -52,7 +52,7 @@ mod backward_bias_merge{
             return;
         }
         let mut gpu_data = GpuData::new();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -68,7 +68,7 @@ mod backward_bias_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropBiasMergeSigmoid);
+        buffers.set_shader(GpuOperations::BackwardBiasSigmoid);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -95,7 +95,7 @@ mod backward_bias_merge{
             return;
         }
         let mut gpu_data = GpuData::new();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -110,7 +110,7 @@ mod backward_bias_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropBiasMergeNoActiv);
+        buffers.set_shader(GpuOperations::BackwardBiasNoActiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

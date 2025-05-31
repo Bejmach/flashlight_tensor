@@ -1,4 +1,4 @@
-use flashlight_tensor::{prelude::*, wgpu::{GpuBuffers, GpuData, GpuOperations, MemoryMetric, Sample}};
+use flashlight_tensor::prelude::*;
 use std::time::Instant;
 
 #[tokio::main]
@@ -13,7 +13,7 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
     let start_init = Instant::now();
 
     let mut gpu_data = GpuData::new();
-    gpu_data.set_single_output();
+    gpu_data.enable_single_output();
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
@@ -34,7 +34,7 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
 
     let buffer_init = Instant::now();
     let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-    buffers.set_shader(GpuOperations::BackpropGradientMergeSigmoid);
+    buffers.set_shader(GpuOperations::BackwardGradientSigmoid);
     buffers.prepare();
     let buffer_duration = buffer_init.elapsed();
 

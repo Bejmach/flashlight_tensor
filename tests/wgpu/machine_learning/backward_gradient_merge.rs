@@ -10,7 +10,7 @@ mod backward_gradient_merge{
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -23,7 +23,7 @@ mod backward_gradient_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeRelu);
+        buffers.set_shader(GpuOperations::BackwardGradientRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -48,7 +48,7 @@ mod backward_gradient_merge{
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -61,7 +61,7 @@ mod backward_gradient_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeSigmoid);
+        buffers.set_shader(GpuOperations::BackwardGradientSigmoid);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -86,7 +86,7 @@ mod backward_gradient_merge{
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
+        gpu_data.enable_single_output();
 
         let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
 
@@ -97,7 +97,7 @@ mod backward_gradient_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeNoActiv);
+        buffers.set_shader(GpuOperations::BackwardGradientNoActiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

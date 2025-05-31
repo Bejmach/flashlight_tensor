@@ -42,12 +42,17 @@ mod division{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &[16, 16]);
         gpu_data.append(sample);
 
+        let tensor1: Tensor<f32> = Tensor::fill(4.0, &[16, 16]);
+        let tensor2: Tensor<f32> = Tensor::fill(2.0, &[16, 16]);
+        let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &[16, 16]);
+        gpu_data.append(sample);
+
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(GpuOperations::TensDiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
-        let gpu_output = full_gpu_output[0].clone();
+        let gpu_output = full_gpu_output[1].clone();
 
         let cpu_output = tensor1.tens_div(&tensor2).unwrap();
 
@@ -68,7 +73,7 @@ mod division{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
-        let tensor1: Tensor<f32> = Tensor::fill(5.0, &[3, 1]);
+        let tensor1: Tensor<f32> = Tensor::fill(10.0, &[3, 1]);
         let tensor2: Tensor<f32> = Tensor::fill(5.0, &[1, 5]);
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
        gpu_data.append(sample);
