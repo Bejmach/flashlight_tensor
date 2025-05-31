@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod subtypes{
-    use crate::prelude::*;
+    use flashlight_tensor::prelude::*;
 
     #[tokio::test]
     async fn matmul(){

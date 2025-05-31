@@ -1,37 +1,32 @@
 #[cfg(test)]
-mod backward_gradient_merge{
-    use crate::prelude::*;
+mod forward_merge{
+    use flashlight_tensor::prelude::*;
 
     #[tokio::test]
-    async fn backprop_merged_gradient_relu(){
+    async fn weights_bias_merge(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
 
-        let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
+        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
 
-        let relu_cache: Tensor<f32> = Tensor::fill(0.420, &[3, 2]);
+        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, 4.0, 5.0], &[2,2]).unwrap();
+        let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
 
-        let weights: Tensor<f32> = Tensor::fill(0.12412, &[3, 3]);
-
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), relu_cache.clone()}, vec!{}, relu_cache.get_shape());
-
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeRelu);
+        buffers.set_shader(GpuOperations::ForwardWeightBiasNoActiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
-    
-        let relu_output = relu_cache.relu_der().tens_broadcast_mul(&grad_output).unwrap();
 
-        let cpu_output = weights.matrix_transpose().unwrap().matrix_mul(&relu_output).unwrap();
+        let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap();
 
         let epsilon = 1e-5;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
@@ -41,35 +36,30 @@ mod backward_gradient_merge{
     }
 
     #[tokio::test]
-    async fn backprop_merged_gradient_sigmoid(){
+    async fn weights_bias_sigmoid(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
 
-        let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
+        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
 
-        let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[3, 2]);
+        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, -4.0, 5.0], &[2,2]).unwrap();
+        let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
 
-        let weights: Tensor<f32> = Tensor::fill(0.12412, &[3, 3]);
-
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), sigmoid_cache.clone()}, vec!{}, sigmoid_cache.get_shape());
-
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeSigmoid);
+        buffers.set_shader(GpuOperations::ForwardWeightBiasSigmoid);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
-    
-        let sigmoid_output = sigmoid_cache.sigmoid_der().tens_broadcast_mul(&grad_output).unwrap();
 
-        let cpu_output = weights.matrix_transpose().unwrap().matrix_mul(&sigmoid_output).unwrap();
+        let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().sigmoid();
 
         let epsilon = 1e-5;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
@@ -79,32 +69,30 @@ mod backward_gradient_merge{
     }
 
     #[tokio::test]
-    async fn backprop_merged_gradient_no_activ(){
+    async fn weights_bias_relu(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
         }
         let mut gpu_data = GpuData::new();
         gpu_data.disable_params();
-        gpu_data.set_single_output();
 
-        let grad_output: Tensor<f32> = Tensor::fill(0.69, &[3, 2]);
+        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
 
-        let weights: Tensor<f32> = Tensor::fill(0.12412, &[3, 3]);
+        let weights: Tensor<f32> = Tensor::from_data(&[2.0, -3.0, 4.0, -5.0], &[2,2]).unwrap();
+        let biases: Tensor<f32> = Tensor::from_data(&[3.0, -4.0], &[2,1]).unwrap();
 
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone()}, vec!{}, grad_output.get_shape());
-
+        let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackpropGradientMergeNoActiv);
+        buffers.set_shader(GpuOperations::ForwardWeightBiasRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
-    
 
-        let cpu_output = weights.matrix_transpose().unwrap().matrix_mul(&grad_output).unwrap();
+        let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().relu();
 
         let epsilon = 1e-5;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {

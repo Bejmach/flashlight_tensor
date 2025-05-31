@@ -1,9 +1,9 @@
 #[cfg(test)]
-mod multiplication{
-    use crate::prelude::*;
-
+mod addition{
+    use flashlight_tensor::prelude::*;
+    
     #[tokio::test]
-    async fn mul(){
+    async fn add(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
@@ -12,24 +12,24 @@ mod multiplication{
         gpu_data.disable_shapes();
 
         let tensor: Tensor<f32> = Tensor::fill(1.0, &[16, 16]);
-        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{2.0}, &[16, 16]);
+        let sample = Sample::from_data(vec!{tensor.clone()}, vec!{1.0}, &[16, 16]);
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::Mul);
+        buffers.set_shader(GpuOperations::Add);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
 
-        let cpu_output = tensor.mul(2.0);
+        let cpu_output = tensor.add(1.0);
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
         assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
 
     #[tokio::test]
-    async fn tens_mul(){
+    async fn tens_add(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
@@ -43,19 +43,20 @@ mod multiplication{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::TensMul);
+        buffers.set_shader(GpuOperations::TensAdd);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
 
-        let cpu_output = tensor1.tens_mul(&tensor2).unwrap();
+        let cpu_output = tensor1.tens_add(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
         assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());
     }
+
     #[tokio::test]
-    async fn broadcast_mul(){
+    async fn broadcast_add(){
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping GPU test in CI");
             return;
@@ -69,13 +70,13 @@ mod multiplication{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BroadcastMul);
+        buffers.set_shader(GpuOperations::BroadcastAdd);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
         let gpu_output = full_gpu_output[0].clone();
 
-        let cpu_output = tensor1.tens_broadcast_mul(&tensor2).unwrap();
+        let cpu_output = tensor1.tens_broadcast_add(&tensor2).unwrap();
 
         assert_eq!(gpu_output.get_data(), cpu_output.get_data());
         assert_eq!(gpu_output.get_shape(), cpu_output.get_shape());

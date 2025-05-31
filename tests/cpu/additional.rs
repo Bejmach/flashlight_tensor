@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod additional_tests{
-    use crate::prelude::*;
-    use super::*;
+    use flashlight_tensor::prelude::*;
 
     #[test]
     fn append_vector(){

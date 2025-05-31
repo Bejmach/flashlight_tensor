@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod subtraction{
-    use crate::prelude::*;
+    use flashlight_tensor::prelude::*;
 
     #[test]
     fn tensor_subtraction(){

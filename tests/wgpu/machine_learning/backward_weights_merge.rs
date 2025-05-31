@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod backward_weights_merge{
-    use crate::prelude::*;
+    use flashlight_tensor::prelude::*;
 
     #[tokio::test]
     async fn backprop_merged_weights_relu(){

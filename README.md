@@ -8,8 +8,6 @@
 
 > project not related to similarly named [flashlight](https://github.com/flashlight/flashlight). The name was coincidental and chosen independently.
 
-> I know this is maintained tragically, don't judge.
-
 ## Features
 - n-dimensional tensors
 - Element-wise operations

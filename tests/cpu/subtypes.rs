@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod matrix_tests{
-    use crate::prelude::*;
-    use super::*;
+    use flashlight_tensor::prelude::*;
 
     #[test]
     fn matrix_row(){
