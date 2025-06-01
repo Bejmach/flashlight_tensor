@@ -6,6 +6,12 @@ All GPU times include data upload to `gpu_data` and fused operations executed vi
 
 ---
 
+## Hardware used for banchmarks
+
+Cpu: AMD Ryzen 5 5600X 6-Core Processor
+
+Gpu: Radeon RX 7600 XT
+
 ## Backpropagation – Bias
 
 ### Small Scale  
