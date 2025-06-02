@@ -22,6 +22,8 @@ pub struct GpuBuffers{
 
     pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
+
+    pub samples_count: u32,
 }
 
 impl GpuBuffers{
@@ -43,11 +45,14 @@ impl GpuBuffers{
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
+        let mut data_shapes = data.flat_shapes.clone();
+        data_shapes.extend_from_slice(&data.output_shape);
+
         let shapes_buffer;
         if data.flat_shapes.len()!=0 && data.use_shapes{
             shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
-                contents: bytemuck::cast_slice(&data.flat_shapes),
+                contents: bytemuck::cast_slice(&data_shapes),
                 usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             }));
         }
@@ -90,6 +95,8 @@ impl GpuBuffers{
 
             bind_group_layout: None,
             pipeline_layout: None,
+
+            samples_count: data.samples_count,
         }
     }
     /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size and
@@ -161,6 +168,8 @@ impl GpuBuffers{
 
             bind_group_layout: None,
             pipeline_layout: None,
+
+            samples_count: data.samples_count,
         }
     }
     /// Set shader as operation
@@ -267,7 +276,7 @@ impl GpuBuffers{
 
         let mut output_vec: Vec<Tensor<f32>> = Vec::with_capacity(output_data.len()/sample_size);
         
-        for i in 0..(output_data.len()/sample_size){
+        for i in 0..(output_data.len()/sample_size).min(self.samples_count as usize){
             output_vec.push( Tensor::from_data( &output_data[i*sample_size..(i+1)*sample_size], &self.output_shape ).unwrap());
         }
 

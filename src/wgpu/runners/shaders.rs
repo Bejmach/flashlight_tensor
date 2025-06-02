@@ -1,6 +1,7 @@
 /// Gpu tensor operations supported by this library
 #[derive(Debug, PartialEq, Eq)]
 pub enum GpuOperations {
+    None,
     Add,
     TensAdd,
     Sub,
@@ -41,6 +42,7 @@ impl GpuOperations{
     /// Return correct path to shader
     fn shader_src(&self) -> &'static str{
         match self{
+            GpuOperations::None => include_str!("../math/addition/add.wgsl"),
             GpuOperations::Add => include_str!("../math/addition/add.wgsl"),
             GpuOperations::TensAdd => include_str!("../math/addition/tens_add.wgsl"),
             GpuOperations::Sub => include_str!("../math/subtraction/sub.wgsl"),

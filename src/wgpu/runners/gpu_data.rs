@@ -11,6 +11,8 @@ pub struct GpuData{
     pub use_params: bool,
     pub use_shapes: bool,
     pub single_output: bool,
+
+    pub samples_count: u32,
 }
 
 impl GpuData{
@@ -26,6 +28,8 @@ impl GpuData{
             use_shapes: true,
             use_params: true,
             single_output: false,
+            
+            samples_count: 0,
         }
     }
     /// Create new empty GpuData with input.capacity = capacity
@@ -40,6 +44,8 @@ impl GpuData{
             use_params: true,
             use_shapes: true,
             single_output: false,
+
+            samples_count: 0,
         }
     }
     /// Disable params for GpuData
@@ -111,11 +117,17 @@ impl GpuData{
         else{
             self.output_len += sample.output_len;
         }
+
+        self.samples_count += 1;
     }
     /// Manually set params for GpuData
     /// Most of the time you wont need to do it, because appending by default changes them for
     /// sample params
     pub fn set_params(&mut self, params: Vec<f32>){
         self.params = params;
+    }
+
+    pub fn get_input_size(&self) -> u32{
+        return self.flat_shapes.iter().product();
     }
 }

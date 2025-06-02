@@ -31,7 +31,6 @@ impl Sample{
         }
 
         let output_len: u32 = output_shape.iter().product();
-        shapes.extend_from_slice(output_shape);
 
         Self{
             inputs,

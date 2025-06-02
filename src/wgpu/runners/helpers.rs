@@ -8,6 +8,17 @@ pub enum MemoryMetric{
     MB,
 }
 
+pub fn get_size_using_metric(size: u64, metric: MemoryMetric) -> u64{
+    if metric == MemoryMetric::MB{
+        return size * 1024 * 1024;
+    }
+    else if metric == MemoryMetric::GB{
+        return size * 1024 * 1024 * 1024;
+    }
+    
+    0
+}
+
 /// Initlize a device with size and queue
 /// Max size is 2 GB, because of the WGPU limitations
 ///
@@ -15,13 +26,8 @@ pub enum MemoryMetric{
 pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Device, wgpu::Queue){
     let mut real_buffer_size: u64;
 
-    if metric == MemoryMetric::MB{
-        real_buffer_size = max_buffer_size * 1024 * 1024;
-    }
-    else if metric == MemoryMetric::GB{
-        real_buffer_size = max_buffer_size * 1024 * 1024 * 1024;
-    }
-    else{
+    real_buffer_size = get_size_using_metric(max_buffer_size, metric);
+    if real_buffer_size == 0{
         real_buffer_size = 1024*1024*256;
     }
 
