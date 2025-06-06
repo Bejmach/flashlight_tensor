@@ -17,7 +17,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::NLog);
+        buffers.set_shader(&GpuOperations::NLog);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -44,7 +44,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::NLog);
+        buffers.set_shader(&GpuOperations::NLog);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -74,7 +74,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::MatrixRowSum);
+        buffers.set_shader(&GpuOperations::MatrixRowSum);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -105,7 +105,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::MatrixColSum);
+        buffers.set_shader(&GpuOperations::MatrixColSum);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -136,7 +136,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::MatrixRowProd);
+        buffers.set_shader(&GpuOperations::MatrixRowProd);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -167,7 +167,7 @@ mod functions{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::MatrixColProd);
+        buffers.set_shader(&GpuOperations::MatrixColProd);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

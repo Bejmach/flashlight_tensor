@@ -7,6 +7,8 @@ pub struct Sample{
     pub params: Vec<f32>,
     pub output_len: u32,
     pub output_shape: Vec<u32>,
+
+    pub input_count: u32,
 }
 
 impl Sample{
@@ -38,6 +40,8 @@ impl Sample{
             params,
             output_len,
             output_shape: output_shape.to_vec(),
+
+            input_count: input_tensors.len() as u32,
         }
     }
 }

@@ -34,7 +34,7 @@ impl GpuBuffers{
     /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size
     /// Max buffer size is 2GB because of the WGPU limitations
     pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
-        let (device, queue) = gpu_init(max_buffer_size, metric).await;
+        let (device, queue) = gpu_init(max_buffer_size, &metric).await;
         let buffers: Option<GpuBuffers> = None;
 
         let shader = None;
@@ -103,10 +103,10 @@ impl GpuBuffers{
     /// shader
     /// Max buffer size is 2GB because of the WGPU limitations
     pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
-        let (device, queue) = gpu_init(max_buffer_size, metric).await;
+        let (device, queue) = gpu_init(max_buffer_size, &metric).await;
         let buffers: Option<GpuBuffers> = None;
 
-        let shader = Some(get_shader(&device, operation));
+        let shader = Some(get_shader(&device, &operation));
 
         let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
@@ -173,7 +173,7 @@ impl GpuBuffers{
         }
     }
     /// Set shader as operation
-    pub fn set_shader(&mut self, operation: GpuOperations){
+    pub fn set_shader(&mut self, operation: &GpuOperations){
         self.shader = Some(get_shader(&self.device, operation));
     }
 

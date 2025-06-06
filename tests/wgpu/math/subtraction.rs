@@ -16,7 +16,7 @@ mod subtraction{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::Sub);
+        buffers.set_shader(&GpuOperations::Sub);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -43,7 +43,7 @@ mod subtraction{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::TensSub);
+        buffers.set_shader(&GpuOperations::TensSub);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -70,7 +70,7 @@ mod subtraction{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BroadcastSub);
+        buffers.set_shader(&GpuOperations::BroadcastSub);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

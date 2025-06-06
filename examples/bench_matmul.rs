@@ -34,7 +34,7 @@ async fn main(){
     let start_preparation = Instant::now();
 
     let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-    buffers.set_shader(GpuOperations::Matmul);
+    buffers.set_shader(&GpuOperations::Matmul);
     buffers.prepare();
 
     let duration_preparation = start_preparation.elapsed();

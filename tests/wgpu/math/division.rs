@@ -16,7 +16,7 @@ mod division{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::Div);
+        buffers.set_shader(&GpuOperations::Div);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -48,7 +48,7 @@ mod division{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::TensDiv);
+        buffers.set_shader(&GpuOperations::TensDiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -79,7 +79,7 @@ mod division{
        gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BroadcastDiv);
+        buffers.set_shader(&GpuOperations::BroadcastDiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

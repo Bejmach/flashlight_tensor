@@ -6,14 +6,22 @@ use crate::prelude::GpuBuffers;
 pub enum MemoryMetric{
     GB,
     MB,
+    KB,
+    B,
 }
 
-pub fn get_size_using_metric(size: u64, metric: MemoryMetric) -> u64{
-    if metric == MemoryMetric::MB{
+pub fn get_size_using_metric(size: u64, metric: &MemoryMetric) -> u64{
+    if metric == &MemoryMetric::GB{
+        return size * 1024 * 1024 * 1024;
+    }
+    else if metric == &MemoryMetric::MB{
         return size * 1024 * 1024;
     }
-    else if metric == MemoryMetric::GB{
-        return size * 1024 * 1024 * 1024;
+    else if metric == &MemoryMetric::KB{
+        return size * 1024;
+    }
+    else if metric == &MemoryMetric::B{
+        return size;
     }
     
     0
@@ -23,7 +31,7 @@ pub fn get_size_using_metric(size: u64, metric: MemoryMetric) -> u64{
 /// Max size is 2 GB, because of the WGPU limitations
 ///
 /// Most of the time, you wont need to use it
-pub async fn gpu_init(max_buffer_size: u64, metric: MemoryMetric) -> (wgpu::Device, wgpu::Queue){
+pub async fn gpu_init(max_buffer_size: u64, metric: &MemoryMetric) -> (wgpu::Device, wgpu::Queue){
     let mut real_buffer_size: u64;
 
     real_buffer_size = get_size_using_metric(max_buffer_size, metric);

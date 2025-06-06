@@ -5,7 +5,7 @@ pub struct GpuData{
     pub flat_inputs: Vec<f32>,
     pub flat_shapes: Vec<u32>,
     pub params: Vec<f32>,
-    pub output_len: u32,
+    pub output_len: usize,
     pub output_shape: Vec<u32>,
 
     pub use_params: bool,
@@ -13,6 +13,8 @@ pub struct GpuData{
     pub single_output: bool,
 
     pub samples_count: u32,
+
+    pub input_count: u32,
 }
 
 impl GpuData{
@@ -30,6 +32,8 @@ impl GpuData{
             single_output: false,
             
             samples_count: 0,
+
+            input_count: 0,
         }
     }
     /// Create new empty GpuData with input.capacity = capacity
@@ -46,6 +50,8 @@ impl GpuData{
             single_output: false,
 
             samples_count: 0,
+            
+            input_count: 0,
         }
     }
     /// Disable params for GpuData
@@ -82,22 +88,22 @@ impl GpuData{
     }
     /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
     /// Is you want to skip later part, disable shapes or params
-    pub fn append(&mut self,sample: Sample){
+    pub fn append(&mut self,sample: Sample) -> bool{
         if !(self.output_shape.len() == 0 || self.output_shape == sample.output_shape){
-            return
+            return false;
         }
 
         if self.flat_shapes.len() != 0 && self.flat_shapes != sample.shapes{
             println!("Shapes does not match");
-            return;
+            return false;
         }
         if self.params.len() != 0 && self.params != sample.params{
             println!("Params does not match");
-            return;
+            return false;
         }
         if self.output_shape.len() != 0 && self.output_shape != sample.output_shape{
             println!("Params does not match");
-            return;
+            return false;
         }
 
         if self.use_shapes && self.flat_shapes.len() == 0{
@@ -112,13 +118,17 @@ impl GpuData{
 
         self.flat_inputs.extend(sample.inputs);
         if self.single_output{
-            self.output_len = sample.output_len;
+            self.output_len = sample.output_len as usize;
         }
         else{
-            self.output_len += sample.output_len;
+            self.output_len += sample.output_len as usize;
         }
 
+        self.input_count = sample.input_count;
+
         self.samples_count += 1;
+
+        true
     }
     /// Manually set params for GpuData
     /// Most of the time you wont need to do it, because appending by default changes them for

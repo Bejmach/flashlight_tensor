@@ -20,7 +20,7 @@ mod forward_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::ForwardNoActiv);
+        buffers.set_shader(&GpuOperations::ForwardNoActiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -53,7 +53,7 @@ mod forward_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::ForwardSigmoid);
+        buffers.set_shader(&GpuOperations::ForwardSigmoid);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -86,7 +86,7 @@ mod forward_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::ForwardRelu);
+        buffers.set_shader(&GpuOperations::ForwardRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;

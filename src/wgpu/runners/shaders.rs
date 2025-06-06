@@ -84,7 +84,7 @@ impl GpuOperations{
 /// Returns a shader module of operation.
 ///
 /// Most of the time, you wont need to use it
-pub fn get_shader(device: &wgpu::Device, operation: GpuOperations) -> wgpu::ShaderModule{
+pub fn get_shader(device: &wgpu::Device, operation: &GpuOperations) -> wgpu::ShaderModule{
     device.create_shader_module(wgpu::ShaderModuleDescriptor{
         label: Some("WGSL Shader"),
         source: wgpu::ShaderSource::Wgsl(operation.shader_src().into()),

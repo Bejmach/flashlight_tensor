@@ -30,6 +30,7 @@ pub use crate::{
         gpu_buffers::*,
         shaders::*,
         helpers::*,
+        gpu_runner::*,
     },
 };
 

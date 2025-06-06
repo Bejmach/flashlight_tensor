@@ -25,7 +25,7 @@ mod backward_weights_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackwardWeightRelu);
+        buffers.set_shader(&GpuOperations::BackwardWeightRelu);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -68,7 +68,7 @@ mod backward_weights_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackwardWeightSigmoid);
+        buffers.set_shader(&GpuOperations::BackwardWeightSigmoid);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
@@ -110,7 +110,7 @@ mod backward_weights_merge{
         gpu_data.append(sample);
 
         let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
-        buffers.set_shader(GpuOperations::BackwardWeightNoActiv);
+        buffers.set_shader(&GpuOperations::BackwardWeightNoActiv);
         buffers.prepare();
 
         let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
