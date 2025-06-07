@@ -40,6 +40,8 @@ pub struct GpuRunner{
 
 // Private functions
 impl GpuRunner{
+
+    /// Prepare buffers for operation
     async fn prepare_buffers(&mut self, gpu_ops: &GpuOperations, chunk_id: usize){
         let mut buffers = GpuBuffers::init(self.buffer_size, MemoryMetric::B, &mut self.gpu_data, chunk_id).await;
         buffers.set_shader(gpu_ops);
@@ -48,13 +50,14 @@ impl GpuRunner{
         self.prepared_flag = true;
         self.gpu_buffers = Some(buffers);
     }
+    /// Update buffers for operation
     async fn update_buffers(&mut self, chunk_id: usize){
         let mut buffers = self.gpu_buffers.as_mut().unwrap();
         buffers.update(&mut self.gpu_data, chunk_id);
 
         self.prepared_flag = true;
     }
-
+    /// Run operation
     async fn run_ops(&mut self, gpu_ops: &GpuOperations) -> Vec<Tensor<f32>>{
         let mut return_vec: Vec<Tensor<f32>> = Vec::new();
         for i in 0..self.gpu_data.chunks{
@@ -73,6 +76,7 @@ impl GpuRunner{
         return_vec
     }
 
+    /// Merge all output tensors, for operations that returns one tensor
     async fn fix_for_single_output(&mut self, return_vec: &Vec<Tensor<f32>>) -> (bool, Vec<Tensor<f32>>){
         if self.single_output && return_vec.len() > 1{
             let mut return_tensor = Tensor::from_data(return_vec[0].get_data(), return_vec[0].get_shape()).unwrap();
@@ -114,6 +118,7 @@ impl GpuRunner{
 
 // Public functions
 impl GpuRunner{
+    /// Initialize GpuRunner with memory size. memory limit is 2GB because of the wgpu limitations
     pub fn init(buffer_size: u64, metric: MemoryMetric) -> Self{
         Self { 
             gpu_data: GpuData::new(),
@@ -131,6 +136,7 @@ impl GpuRunner{
             prepared_flag: false,
         }
     }
+    /// Initialize GpuRunner with memory size with gpu_data.input_capacity = capacity. memory limit is 2GB because of the wgpu limitations
     pub fn with_capacity(capacity: usize, buffer_size: u64, metric: MemoryMetric) -> Self{
         Self { 
             gpu_data: GpuData::with_capacity(capacity),
@@ -148,7 +154,7 @@ impl GpuRunner{
             prepared_flag: false,
         }
     }
-
+    /// append sample to GpuRunner
     pub fn append(&mut self, sample: Sample){
         let sample_len = sample.inputs.len();
 
@@ -158,11 +164,11 @@ impl GpuRunner{
             self.sample_len = sample_len as u64;
         }
     }
-
+    /// clear gpu_data
     pub fn clear(&mut self){
         self.gpu_data = GpuData::new();
     }
-
+    /// set new gpu_data
     pub fn set_data(&mut self, gpu_data: GpuData){
         self.gpu_data = gpu_data;
     }

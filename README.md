@@ -17,11 +17,12 @@
 - ReLU and sigmoid
 - forward/backward propagation merged operations on gpu
 - CPU and GPU support
+- GpuRunner
 
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.3.1"
+flashlight_tensor = "0.4.0"
 
 # Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -30,7 +31,6 @@ flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
 ## Documentation
 
 [Docs](https://docs.rs/flashlight_tensor/latest/flashlight_tensor/)  
-> all tensor operations in tensor category
 
 ## Quick Start
 > For gpu usage go to examples on github
@@ -48,43 +48,53 @@ Run tests with:
 ``cargo test``
 
 
-> G# means github version # of patch. You can treat that as alpha patch of next version. Versions G are avilable on github early, and those features will be released on cargo with next bigger patch.  
-
-> Not everything in G version is tested and working but main branch, should contain everything that is listed here. You are using it at your own responsibility.  
-
-> P means planned, and tells, what is planned for next versions
-
 ### Patch notes
-- V0.2.4:
-  - matrix_vec/col, now return a matrix, not vector
-  - matrix_col/row_sum/prod, return a sum/product of all collumns/rows in matrix
-- V0.2.5
-  - G1
-    - mutable operations for iterative functions
-  - G2
-    -better file structure
-- V0.2.6
-  - activation functions for neural network
-- V0.2.6
-  - G1
-    - wgpu preparation, currently not working
-  - G2
-    - gpu_buffers that allows for running tensor operations on gpu, for now only addition, and cpu preparation unoptimized
-  - G3
-    - first gpu operations and tests, and matmul gpu vs cpu comparison in examples
-  - G4
-    - most operations and tests on gpu, No docs for now
-- V0.3.0 - most operations + basic docs
-  - G1
-    - Merged forward shaders (matmul + broadcast_add + activation)
-    - Renamed "get_sizes" to "get_shape" and "set_size" to "set_shape"
-  - G2
-    - Matrix_col/row_prod/sum on gpu
-- V0.3.1 - gpu only backward/forward propagation merged operations, kinda hard to perform, will try to abstact it into gpu_runner
-  - P G1
-    - examples, with merged machine learning operations runtime
-- P V0.3.2 - gpu_runner
+##### V0.2.4:
+- matrix_vec/col, now return a matrix, not vector
+- matrix_col/row_sum/prod, return a sum/product of all collumns/rows in matrix
+##### V0.2.5
+- Propably something  
+##### V0.2.6
+- better file structure
+- mutable operations for iterative functions
+##### V0.2.6
+- activation functions for neural network
+##### V0.3.0
+- gpu operations + docs
+##### V0.3.1
+- gpu only backward/forward propagation merged operations, kinda hard to perform, will try to abstact it into gpu_runner
+- examples, with merged machine learning operations runtime
+##### V0.4.0
+- gpu_chunking
+- gpu_runner
 
-### Plans for 0.4.0?
-- gpu chunking
-- gpu_runner for easier gpu operations
+### What changed in 4.0
+- less code for similar result
+
+#### Old way
+```rust
+let mut gpu_data = GpuData::new();
+gpu_data.disable_shapes();
+
+let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[2, 2])}, vec!{1.0}, &[2, 2]);
+gpu_data.append(sample);
+
+let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
+buffers.set_shader(&GpuOperations::Add);
+buffers.prepare();
+
+let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
+```
+
+#### New way
+```rust
+let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
+        
+let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[2, 2])}, vec!{1.0}, &[2, 2]);
+runner.append(sample);
+
+let output_data: Vec<Tensor<f32>> = runner.add().await;
+```
+
+### Plans for 0.5.0
+- nothing for now

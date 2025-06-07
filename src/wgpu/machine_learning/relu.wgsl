@@ -4,21 +4,19 @@ var<storage, read> input: array<f32>;
 @group(0) @binding(3)
 var<storage, read_write> output: array<f32>;
 
-@compute @workgroup_size(64)
-
-fn relu(x: f32) -> f32{
-	if(x > 0.0){
-		return x;
-	}
-	return 0.0;
+fn relu(x: f32) -> f32 {
+    if (x > 0.0) {
+        return x;
+    }
+    return 0.0;
 }
 
-fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
-
-	let idx = global_id.y * 65535u + global_id.x;
-	if (idx >= arrayLength(&input)) {
-		return;
-	}
-	
-	output[idx] = relu(input[idx]);
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.y * 65535u + global_id.x;
+    if (idx >= arrayLength(&input)) {
+        return;
+    }
+    
+    output[idx] = relu(input[idx]);
 }
