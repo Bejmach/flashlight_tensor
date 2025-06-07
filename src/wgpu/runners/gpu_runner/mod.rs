@@ -1,3 +1,5 @@
+pub mod runner_ops;
+
 use crate::{prelude::{GpuBuffers, GpuData}, tensor::Tensor};
 
 use super::{gpu_buffers, gpu_data, helpers::{get_size_using_metric, MemoryMetric}, sample::Sample, shaders::GpuOperations};
@@ -31,6 +33,8 @@ pub struct GpuRunner{
     single_output: bool,
     overflow_ops: OverflowOperation,
 
+    overflow_buffer: Option<GpuBuffers>,
+
     prepared_flag: bool,
 }
 
@@ -43,7 +47,68 @@ impl GpuRunner{
 
         self.prepared_flag = true;
         self.gpu_buffers = Some(buffers);
-        
+    }
+    async fn update_buffers(&mut self, chunk_id: usize){
+        let mut buffers = self.gpu_buffers.as_mut().unwrap();
+        buffers.update(&mut self.gpu_data, chunk_id);
+
+        self.prepared_flag = true;
+    }
+
+    async fn run_ops(&mut self, gpu_ops: &GpuOperations) -> Vec<Tensor<f32>>{
+        let mut return_vec: Vec<Tensor<f32>> = Vec::new();
+        for i in 0..self.gpu_data.chunks{
+            if !self.prepared_flag || self.gpu_buffers.is_none(){
+                self.prepare_buffers(&GpuOperations::Add, i).await;
+            }
+            else if self.gpu_buffers.is_some(){
+                self.update_buffers(i).await;
+            }
+
+            let mut chunk_output = self.gpu_buffers.as_ref().unwrap().run().await;
+
+            return_vec.append(&mut chunk_output);
+        }
+
+        return_vec
+    }
+
+    async fn fix_for_single_output(&mut self, return_vec: &Vec<Tensor<f32>>) -> (bool, Vec<Tensor<f32>>){
+        if self.single_output && return_vec.len() > 1{
+            let mut return_tensor = Tensor::from_data(return_vec[0].get_data(), return_vec[0].get_shape()).unwrap();
+            for i in 1..return_vec.len(){
+                let tensor = Tensor::from_data(return_vec[i].get_data(), return_vec[i].get_shape()).unwrap();
+                return_tensor.append(&tensor).unwrap();
+            }
+            let mut overflow_data = GpuData::with_capacity(return_tensor.get_data().len());
+            overflow_data.disable_params();
+            overflow_data.enable_single_output();
+
+            let sample: Sample = Sample::from_data(vec!{return_tensor}, vec!{}, return_vec[0].get_shape());
+
+            overflow_data.append(sample);
+
+            if self.overflow_buffer.is_none(){
+                let mut overflow_buffer = GpuBuffers::init(self.buffer_size, MemoryMetric::B, &mut overflow_data, 0).await;
+
+                overflow_buffer.set_shader(&GpuOperations::MatrixColSum);
+                self.overflow_buffer = Some(overflow_buffer);
+            }
+            else{
+                let mut overflow_buffer = self.overflow_buffer.as_mut().unwrap();
+
+                overflow_buffer.update(&mut overflow_data, 0);
+            }
+
+            let mut overflow_buffer = self.overflow_buffer.as_mut().unwrap();
+            
+            let new_return_vec = overflow_buffer.run().await;
+
+            return (true, new_return_vec);
+        }
+        else{
+            return (false, Vec::new());
+        }
     }
 }
 
@@ -61,6 +126,8 @@ impl GpuRunner{
             single_output: false,
             overflow_ops: OverflowOperation::Add,
 
+            overflow_buffer: None,
+
             prepared_flag: false,
         }
     }
@@ -75,6 +142,8 @@ impl GpuRunner{
 
             single_output: false,
             overflow_ops: OverflowOperation::Add,
+
+            overflow_buffer: None,
             
             prepared_flag: false,
         }
@@ -99,23 +168,4 @@ impl GpuRunner{
     }
 }
 
-impl GpuRunner{
-    pub async fn add(&mut self) -> Vec<Tensor<f32>>{
-        
-        self.gpu_data.prepare_chunking_alt(self.buffer_size);
 
-        let mut return_vec: Vec<Tensor<f32>> = Vec::new();
-
-        for i in 0..self.gpu_data.chunks{
-            if !self.prepared_flag || self.gpu_buffers.is_none(){
-                self.prepare_buffers(&GpuOperations::Add, i).await;
-            }
-
-            let mut chunk_output = self.gpu_buffers.as_ref().unwrap().run().await;
-
-            return_vec.append(&mut chunk_output);
-        }
-
-        return_vec
-    }
-}

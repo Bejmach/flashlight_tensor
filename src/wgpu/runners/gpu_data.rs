@@ -97,7 +97,7 @@ impl GpuData{
     /// Disable single output for GpuData
     /// By default single output is disabled
     /// Usefull for avg operations
-    pub fn disable_multiple_outputs(&mut self){
+    pub fn disable_single_output(&mut self){
         self.single_output = false;
     }
     
