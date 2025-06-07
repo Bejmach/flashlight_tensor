@@ -32,7 +32,7 @@ impl GpuBuffers{
 
 impl GpuBuffers{
     /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size
-    /// Max buffer size is 2GB because of the WGPU limitations
+    /// Max buffer size is 1GB because of the WGPU limitations
     pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
         let (device, queue) = gpu_init(max_buffer_size, &metric).await;
         let buffers: Option<GpuBuffers> = None;

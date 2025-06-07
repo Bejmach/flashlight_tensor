@@ -34,7 +34,12 @@ pub fn get_size_using_metric(size: u64, metric: &MemoryMetric) -> u64{
 pub async fn gpu_init(max_buffer_size: u64, metric: &MemoryMetric) -> (wgpu::Device, wgpu::Queue){
     let mut real_buffer_size: u64;
 
-    real_buffer_size = get_size_using_metric(max_buffer_size, metric);
+    real_buffer_size = get_size_using_metric(max_buffer_size, metric) * 2;
+    
+    if real_buffer_size > 2 * 1024 * 1024 * 1024{
+        panic!("Buffer size too big");
+    }
+
     if real_buffer_size == 0{
         real_buffer_size = 1024*1024*256;
     }

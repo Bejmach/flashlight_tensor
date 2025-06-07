@@ -24,7 +24,7 @@ mod backward_weights_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::BackwardWeightRelu);
         buffers.prepare();
 
@@ -67,7 +67,7 @@ mod backward_weights_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::BackwardWeightSigmoid);
         buffers.prepare();
 
@@ -109,7 +109,7 @@ mod backward_weights_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::BackwardWeightNoActiv);
         buffers.prepare();
 

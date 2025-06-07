@@ -8,7 +8,7 @@ pub struct Sample{
     pub output_len: u32,
     pub output_shape: Vec<u32>,
 
-    pub input_count: u32,
+    pub input_len: usize,
 }
 
 impl Sample{
@@ -33,6 +33,7 @@ impl Sample{
         }
 
         let output_len: u32 = output_shape.iter().product();
+        let input_len = inputs.len();
 
         Self{
             inputs,
@@ -41,7 +42,7 @@ impl Sample{
             output_len,
             output_shape: output_shape.to_vec(),
 
-            input_count: input_tensors.len() as u32,
+            input_len,
         }
     }
 }

@@ -15,7 +15,7 @@ mod subtraction{
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{1.0}, &[16, 16]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::Sub);
         buffers.prepare();
 
@@ -42,7 +42,7 @@ mod subtraction{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &[16, 16]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::TensSub);
         buffers.prepare();
 
@@ -69,7 +69,7 @@ mod subtraction{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::BroadcastSub);
         buffers.prepare();
 

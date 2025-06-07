@@ -14,7 +14,11 @@ pub struct GpuData{
 
     pub samples_count: u32,
 
-    pub input_count: u32,
+    pub sample_len: usize,
+
+    pub chunking: bool,
+    max_chunk_len: usize,
+    chunks: usize,
 }
 
 impl GpuData{
@@ -33,7 +37,11 @@ impl GpuData{
             
             samples_count: 0,
 
-            input_count: 0,
+            sample_len: 0,
+
+            chunking: false,
+            max_chunk_len: 0,
+            chunks: 0,
         }
     }
     /// Create new empty GpuData with input.capacity = capacity
@@ -51,7 +59,11 @@ impl GpuData{
 
             samples_count: 0,
             
-            input_count: 0,
+            sample_len: 0,
+
+            chunking: false,
+            max_chunk_len: 0,
+            chunks: 0,
         }
     }
     /// Disable params for GpuData
@@ -86,6 +98,28 @@ impl GpuData{
     pub fn disable_multiple_outputs(&mut self){
         self.single_output = false;
     }
+    
+    pub fn enable_chunking(&mut self, max_chunk_len: usize){
+        if self.sample_len == 0{
+            println!("Insert data before enabling chunking");
+            return
+        }
+        self.chunking = true;
+        self.max_chunk_len = max_chunk_len - (max_chunk_len % self.sample_len);
+        self.chunks = (self.flat_inputs.len() + self.max_chunk_len-1)/self.max_chunk_len;
+    }
+    pub fn disable_chunking(&mut self){
+        self.chunking = false;
+    }
+
+    pub fn get_chunk(&self, chunk_id: usize) -> Option<&[f32]>{
+        if chunk_id>self.chunks{
+            return None;
+        }
+
+        return Some(&self.flat_inputs[chunk_id * self.max_chunk_len .. (chunk_id+1) * self.max_chunk_len]);
+    }
+
     /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
     /// Is you want to skip later part, disable shapes or params
     pub fn append(&mut self,sample: Sample) -> bool{
@@ -124,9 +158,13 @@ impl GpuData{
             self.output_len += sample.output_len as usize;
         }
 
-        self.input_count = sample.input_count;
+        self.sample_len = sample.input_len;
 
         self.samples_count += 1;
+
+        if self.chunking{
+            self.chunks = (self.flat_inputs.len() + self.max_chunk_len-1)/self.max_chunk_len;
+        }
 
         true
     }

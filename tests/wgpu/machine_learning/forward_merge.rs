@@ -19,7 +19,7 @@ mod forward_merge{
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::ForwardNoActiv);
         buffers.prepare();
 
@@ -52,7 +52,7 @@ mod forward_merge{
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::ForwardSigmoid);
         buffers.prepare();
 
@@ -85,7 +85,7 @@ mod forward_merge{
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::ForwardRelu);
         buffers.prepare();
 

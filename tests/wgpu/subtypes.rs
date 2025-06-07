@@ -16,7 +16,7 @@ mod subtypes{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &[16, 16]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::Matmul);
         buffers.prepare();
 
@@ -42,7 +42,7 @@ mod subtypes{
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, &transpose_shapes(tensor.get_shape()));
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
         buffers.set_shader(&GpuOperations::MatrixTranspose);
         buffers.prepare();
 
