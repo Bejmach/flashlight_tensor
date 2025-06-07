@@ -16,7 +16,7 @@ mod functions{
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{}, tensor.get_shape());
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::NLog);
         buffers.prepare();
 
@@ -43,7 +43,7 @@ mod functions{
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{2.0}, tensor.get_shape());
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::NLog);
         buffers.prepare();
 
@@ -73,7 +73,7 @@ mod functions{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::MatrixRowSum);
         buffers.prepare();
 
@@ -104,7 +104,7 @@ mod functions{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::MatrixColSum);
         buffers.prepare();
 
@@ -135,7 +135,7 @@ mod functions{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::MatrixRowProd);
         buffers.prepare();
 
@@ -166,7 +166,7 @@ mod functions{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::MatrixColProd);
         buffers.prepare();
 

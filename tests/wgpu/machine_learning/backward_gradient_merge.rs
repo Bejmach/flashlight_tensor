@@ -22,7 +22,7 @@ mod backward_gradient_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::BackwardGradientRelu);
         buffers.prepare();
 
@@ -60,7 +60,7 @@ mod backward_gradient_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::BackwardGradientSigmoid);
         buffers.prepare();
 
@@ -96,7 +96,7 @@ mod backward_gradient_merge{
 
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::BackwardGradientNoActiv);
         buffers.prepare();
 

@@ -15,7 +15,7 @@ mod addition{
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{1.0}, &[16, 16]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::Add);
         buffers.prepare();
 
@@ -42,7 +42,7 @@ mod addition{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &[16, 16]);
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::TensAdd);
         buffers.prepare();
 
@@ -74,7 +74,7 @@ mod addition{
         let sample = Sample::from_data(vec!{tensor1.clone(), tensor2.clone()}, vec!{}, &get_broadcast_shape(tensor1.get_shape(), tensor2.get_shape()).unwrap());
         gpu_data.append(sample);
 
-        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &gpu_data).await;
+        let mut buffers = GpuBuffers::init(1, MemoryMetric::GB, &mut gpu_data, 0).await;
         buffers.set_shader(&GpuOperations::BroadcastAdd);
         buffers.prepare();
 

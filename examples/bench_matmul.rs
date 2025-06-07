@@ -33,7 +33,7 @@ async fn main(){
     
     let start_preparation = Instant::now();
 
-    let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+    let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &mut gpu_data, 0).await;
     buffers.set_shader(&GpuOperations::Matmul);
     buffers.prepare();
 
@@ -75,7 +75,7 @@ async fn main(){
     println!("Cpu_Insert: {:?}", duration_insert2);
 
     let start_preparation = Instant::now();
-    buffers.update(&gpu_data);
+    buffers.update(&mut gpu_data, 0);
     let duration_preparation = start_preparation.elapsed();
 
     println!("Gpu_update: {:?}", duration_preparation);

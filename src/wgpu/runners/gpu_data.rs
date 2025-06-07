@@ -1,5 +1,7 @@
 use crate::prelude::Sample;
 
+use super::helpers::{get_size_using_metric, MemoryMetric};
+
 /// Data with all gpu operations that will happen at the same time
 pub struct GpuData{
     pub flat_inputs: Vec<f32>,
@@ -13,12 +15,12 @@ pub struct GpuData{
     pub single_output: bool,
 
     pub samples_count: u32,
+    output_per_sample: usize,
+    input_per_sample: usize,
 
-    pub sample_len: usize,
-
-    pub chunking: bool,
     max_chunk_len: usize,
-    chunks: usize,
+    pub chunks: usize,
+    samples_per_chunk: usize,
 }
 
 impl GpuData{
@@ -36,12 +38,12 @@ impl GpuData{
             single_output: false,
             
             samples_count: 0,
+            output_per_sample: 0,
+            input_per_sample: 0,
 
-            sample_len: 0,
-
-            chunking: false,
             max_chunk_len: 0,
             chunks: 0,
+            samples_per_chunk: 0,
         }
     }
     /// Create new empty GpuData with input.capacity = capacity
@@ -58,12 +60,12 @@ impl GpuData{
             single_output: false,
 
             samples_count: 0,
+            output_per_sample: 0,
+            input_per_sample: 0,
             
-            sample_len: 0,
-
-            chunking: false,
             max_chunk_len: 0,
             chunks: 0,
+            samples_per_chunk: 0,
         }
     }
     /// Disable params for GpuData
@@ -99,25 +101,44 @@ impl GpuData{
         self.single_output = false;
     }
     
-    pub fn enable_chunking(&mut self, max_chunk_len: usize){
-        if self.sample_len == 0{
+    pub fn prepare_chunking(&mut self, max_buffer_size: u64, metric: &MemoryMetric){
+        let max_chunk_len = (get_size_using_metric(max_buffer_size, metric) / size_of::<f32>() as u64) as usize;
+
+        if self.input_per_sample == 0{
             println!("Insert data before enabling chunking");
             return
         }
-        self.chunking = true;
-        self.max_chunk_len = max_chunk_len - (max_chunk_len % self.sample_len);
+        self.max_chunk_len = max_chunk_len - (max_chunk_len % self.input_per_sample);
         self.chunks = (self.flat_inputs.len() + self.max_chunk_len-1)/self.max_chunk_len;
     }
-    pub fn disable_chunking(&mut self){
-        self.chunking = false;
+    pub fn prepare_chunking_alt(&mut self, max_buffer_size: u64){
+        let max_chunk_len = max_buffer_size as usize / size_of::<f32>();
+
+        if self.input_per_sample == 0{
+            println!("Insert data before enabling chunking");
+            return
+        }
+        self.max_chunk_len = max_chunk_len - (max_chunk_len % self.input_per_sample);
+        self.chunks = (self.flat_inputs.len() + self.max_chunk_len-1)/self.max_chunk_len;
     }
 
-    pub fn get_chunk(&self, chunk_id: usize) -> Option<&[f32]>{
-        if chunk_id>self.chunks{
-            return None;
+    // Flat input, samples in chunk, output_in_chunk
+    pub fn get_chunk(&self, chunk_id: usize) -> Option<(&[f32], usize, usize)>{
+        if chunk_id>=self.chunks{
+            return Some((&self.flat_inputs[..], self.samples_count as usize, self.output_len))
         }
 
-        return Some(&self.flat_inputs[chunk_id * self.max_chunk_len .. (chunk_id+1) * self.max_chunk_len]);
+        let samples_in_chunk = (((chunk_id+1) * self.max_chunk_len).min(self.flat_inputs.len()) - chunk_id * self.max_chunk_len) / self.input_per_sample;
+
+        let output_in_chunk;
+        if self.single_output{
+            output_in_chunk = self.output_len;
+        }
+        else{
+            output_in_chunk = samples_in_chunk * self.output_per_sample;
+        }
+
+        return Some((&self.flat_inputs[chunk_id * self.max_chunk_len .. (((chunk_id+1) * self.max_chunk_len)).min(self.flat_inputs.len())], samples_in_chunk, output_in_chunk));
     }
 
     /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
@@ -158,13 +179,11 @@ impl GpuData{
             self.output_len += sample.output_len as usize;
         }
 
-        self.sample_len = sample.input_len;
+        self.input_per_sample = sample.input_len;
 
         self.samples_count += 1;
 
-        if self.chunking{
-            self.chunks = (self.flat_inputs.len() + self.max_chunk_len-1)/self.max_chunk_len;
-        }
+        self.output_per_sample = sample.output_len as usize;
 
         true
     }

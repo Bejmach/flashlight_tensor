@@ -36,8 +36,8 @@ pub struct GpuRunner{
 
 // Private functions
 impl GpuRunner{
-    async fn prepare_buffers(&mut self, gpu_ops: &GpuOperations){
-        let mut buffers = GpuBuffers::init(self.buffer_size, MemoryMetric::B, &self.gpu_data).await;
+    async fn prepare_buffers(&mut self, gpu_ops: &GpuOperations, chunk_id: usize){
+        let mut buffers = GpuBuffers::init(self.buffer_size, MemoryMetric::B, &mut self.gpu_data, chunk_id).await;
         buffers.set_shader(gpu_ops);
         buffers.prepare();
 
@@ -102,12 +102,20 @@ impl GpuRunner{
 impl GpuRunner{
     pub async fn add(&mut self) -> Vec<Tensor<f32>>{
         
-            
-        if !self.prepared_flag || self.gpu_buffers.is_none(){
-            self.prepare_buffers(&GpuOperations::Add).await;
+        self.gpu_data.prepare_chunking_alt(self.buffer_size);
+
+        let mut return_vec: Vec<Tensor<f32>> = Vec::new();
+
+        for i in 0..self.gpu_data.chunks{
+            if !self.prepared_flag || self.gpu_buffers.is_none(){
+                self.prepare_buffers(&GpuOperations::Add, i).await;
+            }
+
+            let mut chunk_output = self.gpu_buffers.as_ref().unwrap().run().await;
+
+            return_vec.append(&mut chunk_output);
         }
 
-        self.gpu_buffers.as_ref().unwrap().run().await
-
+        return_vec
     }
 }

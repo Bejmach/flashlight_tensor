@@ -2,7 +2,7 @@ use wgpu::util::DeviceExt;
 
 use crate::{prelude::GpuData, tensor::Tensor};
 
-use super::{helpers::{dispatch_and_receive, get_bind_group, get_bind_group_layout, get_pipeline, get_pipeline_layout, gpu_init, MemoryMetric}, shaders::{get_shader, GpuOperations}};
+use super::{helpers::{dispatch_and_receive, get_bind_group, get_bind_group_layout, get_pipeline, get_pipeline_layout, get_size_using_metric, gpu_init, MemoryMetric}, shaders::{get_shader, GpuOperations}};
 
 /// Buffers needed to perform a gpu operation
 /// Chunking not supported yet, so it has a max limit of data
@@ -24,6 +24,8 @@ pub struct GpuBuffers{
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
 
     pub samples_count: u32,
+
+    max_buffer_size: u64,
 }
 
 impl GpuBuffers{
@@ -33,15 +35,17 @@ impl GpuBuffers{
 impl GpuBuffers{
     /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size
     /// Max buffer size is 1GB because of the WGPU limitations
-    pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
+    pub async fn init(max_buffer_size: u64, metric: MemoryMetric, data: &mut GpuData, chunk_id: usize) -> Self{
         let (device, queue) = gpu_init(max_buffer_size, &metric).await;
         let buffers: Option<GpuBuffers> = None;
 
         let shader = None;
 
+        let (flat_inputs, samples_in_chunk, output_len) = &data.get_chunk(chunk_id).unwrap();
+
         let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
-            contents: bytemuck::cast_slice(&data.flat_inputs),
+            contents: bytemuck::cast_slice(flat_inputs),
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
@@ -74,7 +78,7 @@ impl GpuBuffers{
 
         let output_buffer = device.create_buffer(&wgpu::BufferDescriptor{
             label: Some("Output Buffer"),
-            size: (data.output_len as usize * std::mem::size_of::<f32>()) as u64,
+            size: (output_len * std::mem::size_of::<f32>()) as u64,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
             mapped_at_creation: false,
         });
@@ -85,8 +89,8 @@ impl GpuBuffers{
             params_buffer,
             output_buffer,
 
-            input_len: data.flat_inputs.len(),
-            output_len: data.output_len as usize,
+            input_len: flat_inputs.len(),
+            output_len: *output_len,
             output_shape: data.output_shape.clone(),
 
             device,
@@ -96,21 +100,25 @@ impl GpuBuffers{
             bind_group_layout: None,
             pipeline_layout: None,
 
-            samples_count: data.samples_count,
+            samples_count: *samples_in_chunk as u32,
+
+            max_buffer_size: get_size_using_metric(max_buffer_size, &metric),
         }
     }
     /// Initlize GpuBuffers with data from GpuData and max buffer size set by max_buffer_size and
     /// shader
     /// Max buffer size is 2GB because of the WGPU limitations
-    pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &GpuData) -> Self{
+    pub async fn with_shader(operation: GpuOperations, max_buffer_size: u64, metric: MemoryMetric, data: &mut GpuData, chunk_id: usize) -> Self{
         let (device, queue) = gpu_init(max_buffer_size, &metric).await;
         let buffers: Option<GpuBuffers> = None;
 
         let shader = Some(get_shader(&device, &operation));
 
+        let (flat_inputs, samples_in_chunk, output_len) = &data.get_chunk(chunk_id).unwrap();
+
         let inputs_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
-            contents: bytemuck::cast_slice(&data.flat_inputs),
+            contents: bytemuck::cast_slice(flat_inputs),
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
@@ -147,7 +155,7 @@ impl GpuBuffers{
 
         let output_buffer = device.create_buffer(&wgpu::BufferDescriptor{
             label: Some("Output Buffer"),
-            size: (data.output_len as usize * std::mem::size_of::<f32>()) as u64,
+            size: (output_len * std::mem::size_of::<f32>()) as u64,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
             mapped_at_creation: false,
         });
@@ -158,8 +166,8 @@ impl GpuBuffers{
             params_buffer,
             output_buffer,
 
-            input_len: data.flat_inputs.len(),
-            output_len: data.output_len as usize,
+            input_len: flat_inputs.len(),
+            output_len: *output_len,
             output_shape: data.output_shape.clone(),
 
             device,
@@ -169,7 +177,8 @@ impl GpuBuffers{
             bind_group_layout: None,
             pipeline_layout: None,
 
-            samples_count: data.samples_count,
+            samples_count: *samples_in_chunk as u32,
+            max_buffer_size: get_size_using_metric(max_buffer_size, &metric),
         }
     }
     /// Set shader as operation
@@ -180,11 +189,13 @@ impl GpuBuffers{
     /// Update the buffers without rewriting them. More efficient if doing multiple operations in
     /// sequence
     /// If you know that the size of the updated data is same as data inside
-    pub fn update(&mut self, data: &GpuData){
+    pub fn update(&mut self, data: &mut GpuData, chunk_id: usize){
+        let (flat_inputs, samples_in_chunk, output_len) = &data.get_chunk(chunk_id).unwrap();
+
         self.queue.write_buffer(
             &self.inputs_buffer,
             0,
-            bytemuck::cast_slice(&data.flat_inputs)
+            bytemuck::cast_slice(flat_inputs)
         );
 
         if(self.shapes_buffer.is_some()){
@@ -202,13 +213,17 @@ impl GpuBuffers{
                 bytemuck::cast_slice(&data.params)
             );
         }
+
+        self.samples_count = *samples_in_chunk as u32;
     }
     /// Update the buffers by rewriting them. Less efficient if doing multiple operations in
     /// sequence
-    pub fn rewrite(&mut self, data: &GpuData){
+    pub fn rewrite(&mut self, data: &GpuData, chunk_id: usize){
+        let (flat_inputs, samples_in_chunk, output_len) = &data.get_chunk(chunk_id).unwrap();
+
         let inputs_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
             label: Some("Input Buffer"),
-            contents: bytemuck::cast_slice(&data.flat_inputs),
+            contents: bytemuck::cast_slice(flat_inputs),
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         });
 
@@ -239,7 +254,7 @@ impl GpuBuffers{
 
         let output_buffer = self.device.create_buffer(&wgpu::BufferDescriptor{
             label: Some("Output Buffer"),
-            size: (data.output_len as usize * std::mem::size_of::<f32>()) as u64,
+            size: (output_len * std::mem::size_of::<f32>()) as u64,
             usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
             mapped_at_creation: false,
         });
@@ -248,6 +263,8 @@ impl GpuBuffers{
         self.shapes_buffer = shapes_buffer;
         self.params_buffer = params_buffer;
         self.output_buffer = output_buffer;
+
+        self.samples_count = *samples_in_chunk as u32;
     }
     
     /// Prepare bind_group_layout and pipeline_layout before running operations

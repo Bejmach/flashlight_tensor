@@ -34,13 +34,13 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
     let prep_duration = prep_init.elapsed();
 
     let buffer_init = Instant::now();
-    let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+    let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &mut gpu_data, 0).await;
     buffers.set_shader(&GpuOperations::BackwardWeightSigmoid);
     buffers.prepare();
     let buffer_duration = buffer_init.elapsed();
 
     let buffer_update = Instant::now();
-    buffers.update(&gpu_data);
+    buffers.update(&mut gpu_data, 0);
     let buffer_update_duration = buffer_update.elapsed();
 
     let gpu_runtime_init = Instant::now();

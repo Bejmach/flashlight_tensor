@@ -22,7 +22,7 @@ pub async fn test(iterations: u64, size: u64){
         let sample = Sample::from_data(vec!{tensor.clone()}, vec!{1.0}, tensor.get_shape());
         gpu_data.append(sample);
     }
-    let mut gpu_buffers = GpuBuffers::init(2, MemoryMetric::GB, &gpu_data).await;
+    let mut gpu_buffers = GpuBuffers::init(2, MemoryMetric::GB, &mut gpu_data, 0).await;
     gpu_buffers.set_shader(&GpuOperations::Add);
     gpu_buffers.prepare();
     let buffers_output = gpu_buffers.run().await;

@@ -12,13 +12,13 @@ pub enum MemoryMetric{
 
 pub fn get_size_using_metric(size: u64, metric: &MemoryMetric) -> u64{
     if metric == &MemoryMetric::GB{
-        return size * 1024 * 1024 * 1024;
+        return (size * 1024 * 1024 * 1024);
     }
     else if metric == &MemoryMetric::MB{
-        return size * 1024 * 1024;
+        return (size * 1024 * 1024);
     }
     else if metric == &MemoryMetric::KB{
-        return size * 1024;
+        return (size * 1024);
     }
     else if metric == &MemoryMetric::B{
         return size;
@@ -34,9 +34,9 @@ pub fn get_size_using_metric(size: u64, metric: &MemoryMetric) -> u64{
 pub async fn gpu_init(max_buffer_size: u64, metric: &MemoryMetric) -> (wgpu::Device, wgpu::Queue){
     let mut real_buffer_size: u64;
 
-    real_buffer_size = get_size_using_metric(max_buffer_size, metric) * 2;
+    real_buffer_size = get_size_using_metric(max_buffer_size, metric);
     
-    if real_buffer_size > 2 * 1024 * 1024 * 1024{
+    if real_buffer_size > 2_147_483_648{
         panic!("Buffer size too big");
     }
 
@@ -44,9 +44,13 @@ pub async fn gpu_init(max_buffer_size: u64, metric: &MemoryMetric) -> (wgpu::Dev
         real_buffer_size = 1024*1024*256;
     }
 
+    if real_buffer_size == 2_147_483_648{
+        real_buffer_size = 2_147_483_647;
+    }
+
     let limits = Limits{
-        max_buffer_size: real_buffer_size-1,
-        max_storage_buffer_binding_size: ((real_buffer_size/2)-1) as u32,
+        max_buffer_size: real_buffer_size,
+        max_storage_buffer_binding_size: real_buffer_size as u32,
         ..Limits::downlevel_defaults()
     };
 

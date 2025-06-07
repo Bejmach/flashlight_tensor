@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod addition{
+mod runner{
     use flashlight_tensor::prelude::*;
     
     #[tokio::test]
