@@ -1,7 +1,5 @@
 use crate::{prelude::{GpuOperations, GpuRunner}, tensor::Tensor};
 
-
-
 impl GpuRunner{
     pub async fn add(&mut self) -> Vec<Tensor<f32>>{
 
@@ -20,7 +18,7 @@ impl GpuRunner{
         }
         return_vec
     }
-    pub async fn add_tens(&mut self) -> Vec<Tensor<f32>>{
+    pub async fn tens_add(&mut self) -> Vec<Tensor<f32>>{
 
         self.gpu_data.enable_shapes();
         self.gpu_data.disable_params();

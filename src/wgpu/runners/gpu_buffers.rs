@@ -129,7 +129,7 @@ impl GpuBuffers{
         });
 
         let shapes_buffer;
-        if data.flat_shapes.len()!=0{
+        if data.flat_shapes.len()!=0 && data.use_shapes{
             shapes_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
                 contents: bytemuck::cast_slice(&data.flat_shapes),
@@ -142,7 +142,7 @@ impl GpuBuffers{
 
         let params_buffer;
 
-        if data.params.len()!=0{
+        if data.params.len()!=0 && data.use_params{
             params_buffer = Some(device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Param Buffer"),
                 contents: bytemuck::cast_slice(&data.params),
@@ -228,7 +228,7 @@ impl GpuBuffers{
         });
 
         let shapes_buffer;
-        if data.flat_shapes.len()!=0{
+        if data.flat_shapes.len()!=0 && data.use_shapes{
             shapes_buffer = Some(self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Shapes Buffer"),
                 contents: bytemuck::cast_slice(&data.flat_shapes),
@@ -241,7 +241,7 @@ impl GpuBuffers{
 
         let params_buffer;
 
-        if data.params.len()!=0{
+        if data.params.len()!=0 && data.use_params{
             params_buffer = Some(self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
                 label: Some("Param Buffer"),
                 contents: bytemuck::cast_slice(&data.params),

@@ -59,7 +59,7 @@ impl GpuRunner{
         let mut return_vec: Vec<Tensor<f32>> = Vec::new();
         for i in 0..self.gpu_data.chunks{
             if !self.prepared_flag || self.gpu_buffers.is_none(){
-                self.prepare_buffers(&GpuOperations::Add, i).await;
+                self.prepare_buffers(gpu_ops, i).await;
             }
             else if self.gpu_buffers.is_some(){
                 self.update_buffers(i).await;

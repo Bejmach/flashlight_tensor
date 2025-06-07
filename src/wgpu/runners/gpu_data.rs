@@ -93,12 +93,14 @@ impl GpuData{
     /// Usefull for avg operations
     pub fn enable_single_output(&mut self){
         self.single_output = true;
+        self.output_len = self.output_len / self.samples_count.max(1) as usize;
     }
     /// Disable single output for GpuData
     /// By default single output is disabled
     /// Usefull for avg operations
     pub fn disable_single_output(&mut self){
         self.single_output = false;
+        self.output_len = self.output_len * self.samples_count.max(1) as usize;
     }
     
     pub fn prepare_chunking(&mut self, max_buffer_size: u64, metric: &MemoryMetric){
