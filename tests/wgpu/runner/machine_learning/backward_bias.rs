@@ -17,7 +17,7 @@ mod backward_bias_merge{
 
         let learning_rate = 0.01;
 
-        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone(), relu_cache.clone()}, vec!{learning_rate}, bias.get_shape());
+        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone(), relu_cache.clone()}, vec!{learning_rate}, &[]);
         
         let mut runner = GpuRunner::init(1, MemoryMetric::GB);
         runner.append(sample);
@@ -54,7 +54,7 @@ mod backward_bias_merge{
 
         let learning_rate = 0.01;
 
-        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone(), sigmoid_cache.clone()}, vec!{learning_rate}, bias.get_shape());
+        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone(), sigmoid_cache.clone()}, vec!{learning_rate}, &[]);
         let mut runner = GpuRunner::init(1, MemoryMetric::GB);
         runner.append(sample);
 
@@ -89,9 +89,12 @@ mod backward_bias_merge{
 
         let learning_rate = 0.01;
 
-        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone()}, vec!{learning_rate}, bias.get_shape());
+        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone()}, vec!{learning_rate}, &[]);
 
         let mut runner = GpuRunner::init(1, MemoryMetric::GB);
+        runner.append(sample);
+        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone()}, vec!{learning_rate}, &[]);
+
         runner.append(sample);
 
         let full_gpu_output: Vec<Tensor<f32>> = runner.backward_bias_no_activ().await;

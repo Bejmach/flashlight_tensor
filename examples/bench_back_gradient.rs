@@ -21,12 +21,10 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
 
     let weights: Tensor<f32> = Tensor::fill(0.12412, &[neurons, neurons]);
 
-    let learning_rate = 0.01;
-
     let prep_init = Instant::now();
 
     for _i in 0..iterations{
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), sigmoid_cache.clone()}, vec!{learning_rate}, grad_output.get_shape());
+        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), sigmoid_cache.clone()}, vec!{}, grad_output.get_shape());
 
         gpu_data.append(sample);
     }
