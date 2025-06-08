@@ -22,7 +22,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.4.0"
+flashlight_tensor = "0.4.1"
 
 # Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -67,8 +67,12 @@ Run tests with:
 ##### V0.4.0
 - gpu_chunking
 - gpu_runner
+##### V0.4.1
+- more tests
+- better docs
+- no need to tell output size in sample
 
-### What changed in 4.0
+### What changed in 0.4.0 / 0.4.1
 - less code for similar result
 
 #### Old way
@@ -89,8 +93,9 @@ let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
 #### New way
 ```rust
 let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
-        
-let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[2, 2])}, vec!{1.0}, &[2, 2]);
+//
+//                                new in 0.4.1  No need to give output size -\
+let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[2, 2])}, vec!{1.0}, &[]);
 runner.append(sample);
 
 let output_data: Vec<Tensor<f32>> = runner.add().await;
