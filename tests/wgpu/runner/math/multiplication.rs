@@ -4,6 +4,10 @@ mod runner{
     
     #[tokio::test]
     async fn mul(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
         
         let sample = Sample::from_data(vec!{Tensor::fill(4.0 as f32, &[2, 2])}, vec!{2.0}, &[2, 2]);
@@ -16,6 +20,10 @@ mod runner{
     }
     #[tokio::test]
     async fn tens_mul(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
         
         let sample = Sample::from_data(vec!{Tensor::fill(4.0, &[2, 2]), Tensor::fill(2.0, &[2, 2])}, vec!{}, &[2, 2]);

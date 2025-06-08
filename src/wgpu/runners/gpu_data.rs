@@ -15,7 +15,7 @@ pub struct GpuData{
     pub single_output: bool,
 
     pub samples_count: u32,
-    output_per_sample: usize,
+    pub output_per_sample: usize,
     input_per_sample: usize,
 
     max_chunk_len: usize,
@@ -145,10 +145,10 @@ impl GpuData{
 
     /// Append Sample to GpuData and set GpuData shapes and params to sample shapes and params
     /// Is you want to skip later part, disable shapes or params
-    pub fn append(&mut self,sample: Sample) -> bool{
-        if !(self.output_shape.len() == 0 || self.output_shape == sample.output_shape){
+    pub fn append(&mut self, sample: Sample) -> bool{
+        /*if !(self.output_shape.len() == 0 || self.output_shape == sample.output_shape){
             return false;
-        }
+        }*/
 
         if self.flat_shapes.len() != 0 && self.flat_shapes != sample.shapes{
             println!("Shapes does not match");
@@ -158,10 +158,10 @@ impl GpuData{
             println!("Params does not match");
             return false;
         }
-        if self.output_shape.len() != 0 && self.output_shape != sample.output_shape{
+        /*if self.output_shape.len() != 0 && self.output_shape != sample.output_shape{
             println!("Params does not match");
             return false;
-        }
+        }*/
 
         if self.use_shapes && self.flat_shapes.len() == 0{
             self.flat_shapes = sample.shapes;

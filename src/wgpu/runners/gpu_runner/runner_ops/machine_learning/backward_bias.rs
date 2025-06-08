@@ -3,6 +3,10 @@ use crate::{prelude::{GpuOperations, GpuRunner}, tensor::Tensor};
 impl GpuRunner{
     pub async fn backward_bias_no_activ(&mut self) -> Vec<Tensor<f32>>{
         
+        self.gpu_data.output_shape = vec!{self.gpu_data.flat_shapes[0], self.gpu_data.flat_shapes[1]};
+        self.gpu_data.output_len = self.gpu_data.output_shape.iter().product::<u32>() as usize;
+        self.gpu_data.output_per_sample = self.gpu_data.output_shape.iter().product::<u32>() as usize;
+
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
         self.gpu_data.enable_single_output();
@@ -19,6 +23,10 @@ impl GpuRunner{
         return_vec
     }
     pub async fn backward_bias_relu(&mut self) -> Vec<Tensor<f32>>{
+
+        self.gpu_data.output_shape = vec!{self.gpu_data.flat_shapes[0], self.gpu_data.flat_shapes[1]};
+        self.gpu_data.output_len = self.gpu_data.output_shape.iter().product::<u32>() as usize;
+        self.gpu_data.output_per_sample = self.gpu_data.output_shape.iter().product::<u32>() as usize;
         
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
@@ -36,6 +44,10 @@ impl GpuRunner{
         return_vec
     }
     pub async fn backward_bias_sigmoid(&mut self) -> Vec<Tensor<f32>>{
+
+        self.gpu_data.output_shape = vec!{self.gpu_data.flat_shapes[0], self.gpu_data.flat_shapes[1]};
+        self.gpu_data.output_len = self.gpu_data.output_shape.iter().product::<u32>() as usize;
+        self.gpu_data.output_per_sample = self.gpu_data.output_shape.iter().product::<u32>() as usize;
     
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();

@@ -4,6 +4,10 @@ mod runner{
     
     #[tokio::test]
     async fn relu(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut runner: GpuRunner = GpuRunner::init(16, MemoryMetric::B);
         
         let sample = Sample::from_data(vec!{Tensor::from_data(&[-1.0, 1.0, 0.0, 3.0], &[2, 2]).unwrap()}, vec!{1.0}, &[2, 2]);
@@ -16,6 +20,10 @@ mod runner{
     }
     #[tokio::test]
     async fn sigmoid(){
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping GPU test in CI");
+            return;
+        }
         let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
         
         let sample = Sample::from_data(vec!{Tensor::from_data(&[-100.0, 0.0, 100.0], &[3]).unwrap()}, vec!{}, &[3]);

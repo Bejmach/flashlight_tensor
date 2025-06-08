@@ -22,7 +22,7 @@ pub enum OverflowOperation{
 
 /// Gpu runner for easier gpu usage
 pub struct GpuRunner{
-    gpu_data: GpuData,
+    pub gpu_data: GpuData,
     sample_len: u64,
     gpu_buffers: Option<GpuBuffers>,
 
