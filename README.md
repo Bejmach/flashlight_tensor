@@ -71,8 +71,13 @@ Run tests with:
 - more tests
 - better docs
 - no need to tell output size in sample
+##### V0.4.2
+- gpu ml crucial bug fixes(seriously. earlier versions were unusable for gpu ml)
+- removed merged backprop
+- better tests
 
-### What changed in 0.4.0 / 0.4.1
+
+### What changed in 0.4.x
 - less code for similar result
 
 #### Old way

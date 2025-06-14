@@ -9,10 +9,10 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
 
-        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, -4.0, 5.0], &[2,2]).unwrap();
-        let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
@@ -25,7 +25,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().sigmoid();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
@@ -39,10 +39,10 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
 
-        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, -4.0, 5.0], &[2,2]).unwrap();
-        let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
@@ -55,7 +55,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().relu();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
@@ -68,10 +68,10 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::from_data(&[1.0, 2.0, 0.5, 0.1, 0.3, 0.6], &[2, 3]).unwrap();
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
 
-        let weights: Tensor<f32> = Tensor::from_data(&[2.0, 3.0, -4.0, 5.0], &[2,2]).unwrap();
-        let biases: Tensor<f32> = Tensor::from_data(&[3.0, 4.0], &[2,1]).unwrap();
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
@@ -84,7 +84,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }

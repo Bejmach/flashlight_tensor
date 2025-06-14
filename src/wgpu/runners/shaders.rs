@@ -27,15 +27,9 @@ pub enum GpuOperations {
     ForwardNoActiv,
     ForwardSigmoid,
     ForwardRelu,
-    BackwardWeightNoActiv,
-    BackwardWeightSigmoid,
-    BackwardWeightRelu,
-    BackwardBiasNoActiv,
-    BackwardBiasRelu,
-    BackwardBiasSigmoid,
-    BackwardGradientNoActiv,
-    BackwardGradientRelu,
-    BackwardGradientSigmoid,
+    BackwardWeight,
+    BackwardBias,
+    BackwardGradient,
 }
 
 impl GpuOperations{
@@ -68,15 +62,9 @@ impl GpuOperations{
             GpuOperations::ForwardNoActiv => include_str!("../machine_learning/forward_no_activ.wgsl"),
             GpuOperations::ForwardRelu => include_str!("../machine_learning/forward_relu.wgsl"),
             GpuOperations::ForwardSigmoid => include_str!("../machine_learning/forward_sigmoid.wgsl"),
-            GpuOperations::BackwardWeightNoActiv => include_str!("../machine_learning/backward_weight_grad_no_activ.wgsl"),
-            GpuOperations::BackwardWeightRelu => include_str!("../machine_learning/backward_weight_grad_relu.wgsl"),
-            GpuOperations::BackwardWeightSigmoid => include_str!("../machine_learning/backward_weight_grad_sigmoid.wgsl"),
-            GpuOperations::BackwardBiasNoActiv => include_str!("../machine_learning/backward_bias_grad_no_activ.wgsl"),
-            GpuOperations::BackwardBiasRelu => include_str!("../machine_learning/backward_bias_grad_relu.wgsl"),
-            GpuOperations::BackwardBiasSigmoid => include_str!("../machine_learning/backward_bias_grad_sigmoid.wgsl"),
-            GpuOperations::BackwardGradientNoActiv => include_str!("../machine_learning/backward_input_grad_no_activ.wgsl"),
-            GpuOperations::BackwardGradientRelu => include_str!("../machine_learning/backward_input_grad_relu.wgsl"),
-            GpuOperations::BackwardGradientSigmoid => include_str!("../machine_learning/backward_input_grad_sigmoid.wgsl"),
+            GpuOperations::BackwardWeight => include_str!("../machine_learning/backward_weight_grad.wgsl"),
+            GpuOperations::BackwardBias => include_str!("../machine_learning/backward_bias_grad.wgsl"),
+            GpuOperations::BackwardGradient => include_str!("../machine_learning/backward_input_grad.wgsl"),
         }
     }
 }

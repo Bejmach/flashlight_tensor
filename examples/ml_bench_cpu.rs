@@ -18,7 +18,6 @@ fn backward_bias(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
     let linear_cache: Tensor<f32> = Tensor::fill(0.2137, &[neurons, samples]);
 
     let bias: Tensor<f32> = Tensor::fill(0.12412, &[neurons, 1]);
@@ -27,9 +26,7 @@ fn backward_bias(iterations: u32, samples: u32, neurons: u32){
 
     let cpu_init = Instant::now();
     for _i in 0..iterations{
-        let sigmoid_output = sigmoid_cache.sigmoid_der().tens_broadcast_mul(&grad_output).unwrap();
-
-        let bias_output = sigmoid_output.matrix_col_sum().unwrap().mul(1.0 / linear_cache.get_shape()[0] as f32);
+        let bias_output = grad_output.matrix_col_sum().unwrap().mul(1.0 / linear_cache.get_shape()[0] as f32);
         
         let _cpu_output = bias.tens_sub(&bias_output.mul(learning_rate)).unwrap();
     }
@@ -42,7 +39,6 @@ fn backward_weights(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
     let linear_cache: Tensor<f32> = Tensor::fill(0.2137, &[neurons, samples]);
 
     let weights: Tensor<f32> = Tensor::fill(0.12412, &[neurons, neurons]);
@@ -51,9 +47,7 @@ fn backward_weights(iterations: u32, samples: u32, neurons: u32){
 
     let cpu_init = Instant::now();
     for _i in 0..iterations{
-        let sigmoid_output = sigmoid_cache.sigmoid_der().tens_broadcast_mul(&grad_output).unwrap();
-
-        let weights_output = sigmoid_output.matrix_mul(&linear_cache.matrix_transpose().unwrap()).unwrap();
+        let weights_output = grad_output.matrix_mul(&linear_cache.matrix_transpose().unwrap()).unwrap();
         
         let _cpu_output = weights.tens_sub(&weights_output.mul(learning_rate)).unwrap();
     }
@@ -66,15 +60,11 @@ fn backward_gradient(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
-
     let weights: Tensor<f32> = Tensor::fill(0.12412, &[neurons, neurons]);
     
     let cpu_init = Instant::now();
     for _i in 0..iterations{
-        let sigmoid_output = sigmoid_cache.sigmoid_der().tens_broadcast_mul(&grad_output).unwrap();
-
-        let _cpu_output = weights.matrix_transpose().unwrap().matrix_mul(&sigmoid_output).unwrap();
+        let _cpu_output = weights.matrix_transpose().unwrap().matrix_mul(&grad_output).unwrap();
     }
     let cpu_duration = cpu_init.elapsed();
     println!("Cpu runtime: {:?}\n", cpu_duration);
@@ -90,7 +80,7 @@ fn forward_propagation(iterations: u32, samples: u32, neurons: u32){
 
     let cpu_init = Instant::now();
     for _i in 0..iterations{
-        let _cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().sigmoid();
+        let _cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap();
     }
     let cpu_duration = cpu_init.elapsed();
     println!("Cpu runtime: {:?}\n", cpu_duration);

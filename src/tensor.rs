@@ -1,3 +1,5 @@
+use rand::{Rng};
+
 /// The main Tensor struct 
 /// with data and shape order by [... , z, y, x]
 #[derive(Clone)]
@@ -287,6 +289,34 @@ impl<T> Tensor<T>{
     /// ```
     pub fn idx_to_global(&self, idx: u32) -> Vec<u32>{
         idx_to_global(idx, &self.shape)
+    }
+}
+
+impl Tensor<f32> {
+
+    /// Creates a new tensor with random data data
+    /// with certain size
+    ///
+    /// # Example
+    /// ```
+    /// use flashlight_tensor::prelude::*;
+    ///
+    /// let a: Tensor<f32> = Tensor::rand(1.0, &[2, 2]);
+    /// ```
+    pub fn rand(rand_range: f32, _shape: &[u32]) -> Self{
+        let full_size: u32 = _shape.iter().product();
+        let mut data: Vec<f32> = Vec::with_capacity(full_size as usize);
+        
+        let mut rng = rand::rng();
+
+        for i in 0..full_size{
+            data.push(rng.random_range(-rand_range..rand_range));
+        }
+
+        Self{
+            data,
+            shape: _shape.to_vec(),
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read> input: array<f32>; //self_biases, grad_output, linear_cache
+var<storage, read> input: array<f32>; //self_weights, grad_output, linear_cache
 
 @group(0) @binding(1)
 var<storage, read> shapes: array<u32>;
@@ -66,35 +66,22 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 		linear_shape[i] = shapes[4+i];
 	}
 
-	let weight_shape_id = idx_to_global(idx, weight_shape, 2);
-	let i_idx = weight_shape_id[0];
-	let j_idx = weight_shape_id[1];
-
-	var grad_shape_id: array<u32, 6>;
-	for (var i=0; i<2; i++){
-		if(grad_shape[i] == 1){
-			grad_shape_id[i] = 0;
-		}
-		else{
-			grad_shape_id[i] = weight_shape_id[i];
-		}
-	}
-
-	let linear_shape_id = idx_to_global(idx, weight_shape, 2);
+	let weight_idx = idx % grad_offset;
+	let weight_shape_id = idx_to_global(weight_idx, weight_shape, 2);
 
 	var sum = 0.0;
 	for (var i=0u; i<sample_count; i++){
-		var row_sum = 0.0;
-		for (var j = 0u; j<grad_shape[1]; j++){	
-			let grad_idx = i * sample_size + grad_offset + i_idx * grad_shape[1] + j;
+		var dot_sum = 0.0;
+		for (var j=0u; j<grad_shape[1]; j++){
+			let linear_idx = i * sample_size + linear_cache_offset + linear_shape[1] * weight_shape_id[1] + j;
+			let grad_idx = i * sample_size + grad_offset + grad_shape[1] * weight_shape_id[0] + j;
 
-			row_sum += input[grad_idx];
+			dot_sum += input[linear_idx] * input[grad_idx];
 		}
 
 		
-		sum += row_sum;
+		sum += dot_sum;
 	}
-    sum = sum/f32(linear_shape[0]);
 	
 	output[idx] = input[idx] - ((sum/f32(sample_count))*params.learning_rate); 
 }

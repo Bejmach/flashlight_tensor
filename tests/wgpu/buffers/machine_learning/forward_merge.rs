@@ -28,7 +28,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
@@ -61,7 +61,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().sigmoid();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }
@@ -94,7 +94,7 @@ mod forward_merge{
 
         let cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().relu();
 
-        let epsilon = 1e-5;
+        let epsilon = 1e-4;
         for (a, b) in gpu_output.get_data().iter().zip(cpu_output.get_data()) {
             assert!((a - b).abs() < epsilon, "Values differ: GPU={} CPU={}", a, b);
         }

@@ -31,7 +31,7 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
 
     let buffer_init = Instant::now();
     let mut buffers = GpuBuffers::init(2, MemoryMetric::GB, &mut gpu_data, 0).await;
-    buffers.set_shader(&GpuOperations::ForwardSigmoid);
+    buffers.set_shader(&GpuOperations::ForwardNoActiv);
     buffers.prepare();
     let buffer_duration = buffer_init.elapsed();
 
@@ -48,7 +48,7 @@ async fn test(iterations: u32, samples: u32, neurons: u32){
 
     let cpu_init = Instant::now();
     for _i in 0..iterations{
-        let _cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap().sigmoid();
+        let _cpu_output = weights.matrix_mul(&inputs).unwrap().tens_broadcast_add(&biases).unwrap();
     }
     let cpu_duration = cpu_init.elapsed();
     println!("Cpu runtime: {:?}\n", cpu_duration);

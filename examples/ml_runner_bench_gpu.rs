@@ -21,7 +21,6 @@ async fn backward_bias(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
     let linear_cache: Tensor<f32> = Tensor::fill(0.2137, &[neurons, samples]);
 
     let bias: Tensor<f32> = Tensor::fill(0.12412, &[neurons, 1]);
@@ -33,18 +32,18 @@ async fn backward_bias(iterations: u32, samples: u32, neurons: u32){
     let prep_init = Instant::now();
 
     for _i in 0..iterations{
-        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone(), sigmoid_cache.clone()}, vec!{learning_rate}, &[]);
+        let sample = Sample::from_data(vec!{bias.clone(), grad_output.clone(), linear_cache.clone()}, vec!{learning_rate}, &[]);
 
         runner.append(sample);
     }
     let prep_duration = prep_init.elapsed();
 
     let first_runtime = Instant::now();
-    runner.backward_bias_sigmoid().await;
+    runner.backward_bias().await;
     let first_duration = first_runtime.elapsed();
 
     let second_runtime = Instant::now();
-    let _full_gpu_output = runner.backward_bias_sigmoid().await;
+    let _full_gpu_output = runner.backward_bias().await;
     let second_duration = second_runtime.elapsed();
 
     let start_duration = start_init.elapsed();
@@ -60,7 +59,6 @@ async fn backward_weights(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
     let linear_cache: Tensor<f32> = Tensor::fill(0.2137, &[neurons, samples]);
 
     let weights: Tensor<f32> = Tensor::fill(0.12412, &[neurons, neurons]);
@@ -72,18 +70,18 @@ async fn backward_weights(iterations: u32, samples: u32, neurons: u32){
     let prep_init = Instant::now();
 
     for _i in 0..iterations{
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), linear_cache.clone(), sigmoid_cache.clone()}, vec!{learning_rate}, &[]);
+        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), linear_cache.clone()}, vec!{learning_rate}, &[]);
 
         runner.append(sample);
     }
     let prep_duration = prep_init.elapsed();
 
     let first_runtime = Instant::now();
-    runner.backward_weight_sigmoid().await;
+    runner.backward_weight().await;
     let first_duration = first_runtime.elapsed();
 
     let second_runtime = Instant::now();
-    let _full_gpu_output = runner.backward_weight_sigmoid().await;
+    let _full_gpu_output = runner.backward_weight().await;
     let second_duration = second_runtime.elapsed();
 
     let start_duration = start_init.elapsed();
@@ -99,8 +97,6 @@ async fn backward_gradient(iterations: u32, samples: u32, neurons: u32){
 
     let grad_output: Tensor<f32> = Tensor::fill(0.69, &[neurons, samples]);
 
-    let sigmoid_cache: Tensor<f32> = Tensor::fill(0.420, &[neurons, samples]);
-
     let weights: Tensor<f32> = Tensor::fill(0.12412, &[neurons, neurons]);
 
 
@@ -109,18 +105,18 @@ async fn backward_gradient(iterations: u32, samples: u32, neurons: u32){
     let prep_init = Instant::now();
 
     for _i in 0..iterations{
-        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone(), sigmoid_cache.clone()}, vec!{}, &[]);
+        let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone()}, vec!{}, &[]);
 
         runner.append(sample);
     }
     let prep_duration = prep_init.elapsed();
 
     let first_runtime = Instant::now();
-    runner.backward_grad_sigmoid().await;
+    runner.backward_grad().await;
     let first_duration = first_runtime.elapsed();
 
     let second_runtime = Instant::now();
-    let _full_gpu_output = runner.backward_grad_sigmoid().await;
+    let _full_gpu_output = runner.backward_grad().await;
     let second_duration = second_runtime.elapsed();
 
     let start_duration = start_init.elapsed();
@@ -152,11 +148,11 @@ async fn forward_propagation(iterations: u32, samples: u32, neurons: u32){
     let prep_duration = prep_init.elapsed();
 
     let first_runtime = Instant::now();
-    runner.forward_sigmoid().await;
+    runner.forward_no_activ().await;
     let first_duration = first_runtime.elapsed();
 
     let second_runtime = Instant::now();
-    let _full_gpu_output = runner.forward_sigmoid().await;
+    let _full_gpu_output = runner.forward_no_activ().await;
     let second_duration = second_runtime.elapsed();
 
     let start_duration = start_init.elapsed();
