@@ -1,6 +1,6 @@
 [package]
 name = "flashlight_tensor"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2024"
 authors = ["Maciej Bejmowicz <bejmach@gmail.com>"]
 description = "gpu/cpu tensor library focused around matrix and neural network operations"

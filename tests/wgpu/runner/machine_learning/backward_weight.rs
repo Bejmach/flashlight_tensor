@@ -8,11 +8,11 @@ mod backward_weights_merge{
             eprintln!("Skipping GPU test in CI");
             return;
         }
-        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[3, 2]);
+        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[100, 3]);
 
-        let linear_cache: Tensor<f32> = Tensor::rand(1.0, &[3, 2]);
+        let linear_cache: Tensor<f32> = Tensor::rand(1.0, &[3, 3]);
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[3, 3]);
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[100, 3]);
 
         let learning_rate = 1.0;
 

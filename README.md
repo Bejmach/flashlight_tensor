@@ -14,15 +14,16 @@
 - Scalar multiplication and addition
 - Tensor multiplication and addition
 - Matrix transformation
-- ReLU and sigmoid
-- forward/backward propagation merged operations on gpu
+- ReLU and sigmoid activations
+- forward/backward propagation operations on gpu
 - CPU and GPU support
 - GpuRunner
+- Chunking
 
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.4.2"
+flashlight_tensor = "0.4.3"
 
 # Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -75,6 +76,9 @@ Run tests with:
 - gpu ml crucial bug fixes(seriously. earlier versions were unusable for gpu ml)
 - removed merged backprop
 - better tests
+##### V0.4.3
+- better file structure
+- ml derivative ops that I forgot to include before
 
 
 ### What changed in 0.4.x
@@ -96,6 +100,9 @@ let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
 ```
 
 #### New way
+
+> New way also has integrated chunking, so if data you try to process it bigger than max buffer size, then it will run the operation in chunks and merge data at the end
+
 ```rust
 let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
 //

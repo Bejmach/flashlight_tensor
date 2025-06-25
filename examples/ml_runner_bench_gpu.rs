@@ -3,6 +3,7 @@ use std::time::Instant;
 
 #[tokio::main]
 async fn main(){
+    full_test(1, 1, 800).await;
     full_test(100, 50, 20).await;
     full_test(1000, 500, 100).await;
 }
