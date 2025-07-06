@@ -35,11 +35,13 @@ fn global_to_idx(pos: array<u32, 6>, shape: array<u32, 6>, rank: u32) -> u32 {
     return idx;
 }
 
-fn relu_der(x: f32) -> f32 {
-    if (x > 0.0) {
-        return 1.0;
-    }
-    return 0.0;
+fn sigmoid(x: f32) -> f32{
+	return 1.0 / (1.0 + exp(-x));
+}
+
+fn sigmoid_der(x: f32) -> f32{
+	let sig_x = sigmoid(x);
+	return sig_x * (1.0 - sig_x);
 }
 
 @compute @workgroup_size(64)
@@ -58,11 +60,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	let sample_idx = idx / sample_size;
     let inner_idx = idx % sample_size;
 
-	let input_shape: array<f32, 6>;
-	let grad_shape: array<f32, 6>;
-	let output_shape: array<f32, 6>;
+	var input_shape: array<u32, 6>;
+	var grad_shape: array<u32, 6>;
+	var output_shape: array<u32, 6>;
 
-	for (var i=0u; i<2, i++){
+	for (var i=0u; i<2; i++){
 		input_shape[i] = shapes[i];
 		grad_shape[i] = shapes[i+2];
 		output_shape[i] = shapes[i+4];
@@ -92,5 +94,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 	let input_idx = sample_idx * sample_size + global_to_idx(input_pos, input_shape, 2);
 	let grad_idx = sample_idx * sample_size + grad_offset + global_to_idx(grad_pos, grad_shape, 2);
 
-	output[idx] = relu_der(input[input_idx]) * input[grad_idx];
+	output[idx] = sigmoid_der(input[input_idx]) * input[grad_idx];
 }

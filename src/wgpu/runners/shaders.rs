@@ -32,6 +32,8 @@ pub enum GpuOperations {
     BackwardWeight,
     BackwardBias,
     BackwardGradient,
+    BackwardRelu,
+    BackwardSigmoid,
 }
 
 impl GpuOperations{
@@ -69,6 +71,8 @@ impl GpuOperations{
             GpuOperations::BackwardWeight => include_str!("../shaders/f32/machine_learning/backward_weight_grad.wgsl"),
             GpuOperations::BackwardBias => include_str!("../shaders/f32/machine_learning/backward_bias_grad.wgsl"),
             GpuOperations::BackwardGradient => include_str!("../shaders/f32/machine_learning/backward_input_grad.wgsl"),
+            GpuOperations::BackwardRelu => include_str!("../shaders/f32/machine_learning/backward_relu.wgsl"),
+            GpuOperations::BackwardSigmoid => include_str!("../shaders/f32/machine_learning/backward_sigmoid.wgsl"),
         }
     }
 }

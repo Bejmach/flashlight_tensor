@@ -79,6 +79,9 @@ Run tests with:
 ##### V0.4.3
 - better file structure
 - ml derivative ops that I forgot to include before
+##### V0.4.4
+- bug fixed
+- backward activations
 
 
 ### What changed in 0.4.x
