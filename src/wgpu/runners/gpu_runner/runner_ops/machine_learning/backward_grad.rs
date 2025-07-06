@@ -29,13 +29,13 @@ impl GpuRunner{
     /// ```
     pub async fn backward_grad(&mut self) -> Vec<Tensor<f32>>{
 
-        self.gpu_data.output_shape = vec!{self.gpu_data.flat_shapes[2], self.gpu_data.flat_shapes[3]};
+        self.gpu_data.output_shape = vec!{self.gpu_data.flat_shapes[1], self.gpu_data.flat_shapes[3]};
         self.gpu_data.output_len = self.gpu_data.output_shape.iter().product::<u32>() as usize * self.gpu_data.samples_count as usize;
         self.gpu_data.output_per_sample = self.gpu_data.output_shape.iter().product::<u32>() as usize;
         
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
-        self.gpu_data.enable_single_output();
+        self.gpu_data.disable_single_output();
         
         self.gpu_data.prepare_chunking_alt(self.buffer_size);
 

@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod backward_gradient_merge{
     use flashlight_tensor::prelude::*;
+    use rand::prelude::*;
 
     #[tokio::test]
     async fn backprop_merged_gradient_no_activ(){
@@ -9,9 +10,14 @@ mod backward_gradient_merge{
             return;
         }
 
-        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[3, 2]);
+        let mut rng = rand::rng();
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[3, 3]);
+        let size_1 = rng.random_range(2..128);
+        let size_2 = rng.random_range(2..128);
+
+        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, 1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), grad_output.clone()}, vec!{}, grad_output.get_shape());
 

@@ -37,7 +37,7 @@ impl GpuRunner{
         
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
-        self.gpu_data.enable_single_output();
+        self.gpu_data.disable_single_output();
         
         self.gpu_data.prepare_chunking_alt(self.buffer_size);
 
@@ -87,7 +87,7 @@ impl GpuRunner{
         
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
-        self.gpu_data.enable_single_output();
+        self.gpu_data.disable_single_output();
         
         self.gpu_data.prepare_chunking_alt(self.buffer_size);
 
@@ -137,7 +137,7 @@ impl GpuRunner{
     
         self.gpu_data.enable_shapes();
         self.gpu_data.enable_params();
-        self.gpu_data.enable_single_output();
+        self.gpu_data.disable_single_output();
     
         self.gpu_data.prepare_chunking_alt(self.buffer_size);
 

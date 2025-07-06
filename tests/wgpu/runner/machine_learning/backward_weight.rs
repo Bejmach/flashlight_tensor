@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod backward_weights_merge{
     use flashlight_tensor::prelude::*;
+    use rand::prelude::*;
 
     #[tokio::test]
     async fn backprop_weights(){
@@ -8,11 +9,17 @@ mod backward_weights_merge{
             eprintln!("Skipping GPU test in CI");
             return;
         }
-        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[100, 3]);
+        
+        let mut rng = rand::rng();
 
-        let linear_cache: Tensor<f32> = Tensor::rand(1.0, &[3, 3]);
+        let size_1 = rng.random_range(2..128);
+        let size_2 = rng.random_range(2..128);
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[100, 3]);
+        let grad_output: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+
+        let linear_cache: Tensor<f32> = Tensor::rand(1.0, &[size_2, size_2]);
+
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
 
         let learning_rate = 1.0;
 

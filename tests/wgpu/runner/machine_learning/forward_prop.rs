@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod forward_merge{
     use flashlight_tensor::prelude::*;
+    use rand::prelude::*;
 
     #[tokio::test]
     async fn weights_bias_sigmoid(){
@@ -9,10 +10,15 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
+        let mut rng = rand::rng();
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
-        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
+        let size_1 = rng.random_range(2..128);
+        let size_2 = rng.random_range(2..128);
+
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_1]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[size_1,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
@@ -39,10 +45,15 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
+        let mut rng = rand::rng();
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
-        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
+        let size_1 = rng.random_range(2..128);
+        let size_2 = rng.random_range(2..128);
+
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_1]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[size_1,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
@@ -68,10 +79,15 @@ mod forward_merge{
             return;
         }
 
-        let inputs: Tensor<f32> = Tensor::rand(1.0, &[2, 3]);
+        let mut rng = rand::rng();
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[2,2]);
-        let biases: Tensor<f32> = Tensor::rand(1.0, &[2,1]);
+        let size_1 = rng.random_range(2..128);
+        let size_2 = rng.random_range(2..128);
+
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_1]);
+        let biases: Tensor<f32> = Tensor::rand(1.0, &[size_1,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);
     
