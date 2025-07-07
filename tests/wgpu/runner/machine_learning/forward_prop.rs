@@ -83,10 +83,11 @@ mod forward_merge{
 
         let size_1 = rng.random_range(2..128);
         let size_2 = rng.random_range(2..128);
+        let size_3 = rng.random_range(2..128);
 
-        let inputs: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
+        let inputs: Tensor<f32> = Tensor::rand(1.0, &[size_2, size_3]);
 
-        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_1]);
+        let weights: Tensor<f32> = Tensor::rand(1.0, &[size_1, size_2]);
         let biases: Tensor<f32> = Tensor::rand(1.0, &[size_1,1]);
 
         let sample = Sample::from_data(vec!{weights.clone(), inputs.clone(), biases.clone()}, vec!{}, &[weights.get_shape()[0], inputs.get_shape()[1]]);

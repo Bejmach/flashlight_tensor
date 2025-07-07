@@ -46,61 +46,54 @@ fn global_to_idx(pos: array<u32, 6>, shape: array<u32, 6>, rank: u32) -> u32 {
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>){
 
 	let idx = global_id.y * 65535u + global_id.x;
-	if (idx >= arrayLength(&input)) {
+	if (idx >= arrayLength(&output)) {
 		return;
 	}
 
-    let M = shapes[0];
-    let K = shapes[1];
-    let N = shapes[3];
+	let input_offset = shapes[0] * shapes[1];
+	let bias_offset = input_offset + shapes[2] * shapes[3];
 
-    let sample_output_size = M * N;
-    let sample_input_size = M * K + K * N;
+    let sample_size = bias_offset + shapes[4] * shapes[5];
+	let output_size = shapes[6] * shapes[7];
 
-    if (idx >= arrayLength(&output)) {
-        return;
-    }
+    let sample_idx = idx / output_size;
+    let inner_idx = idx % output_size;
 
-    let sample_idx = idx / sample_output_size;
-    let inner_idx = idx % sample_output_size;
+	var weight_shape: array<u32, 6>;
+	var input_shape: array<u32, 6>;
+	var bias_shape: array<u32, 6>;
 
-    let row = inner_idx / N;
-    let col = inner_idx % N;
+	var output_shape: array<u32, 6>;
 
-    let offset_inputA = sample_idx * sample_input_size;
-    let offset_inputB = offset_inputA + M * K;
+	for(var i = 0u; i<2; i++){
+		weight_shape[i] = shapes[i];
+		input_shape[i] = shapes[2+i];
+		bias_shape[i] = shapes[4+i];
+		output_shape[i] = shapes[6+i];
+	}
 
-    var sum: f32 = 0.0;
-    for (var k: u32 = 0u; k < K; k = k + 1u) {
-        let a = input[offset_inputA + row * K + k];
-        let b = input[offset_inputB + k * N + col];
-        sum = sum + a * b;
-    }
+	let output_pos = idx_to_global(inner_idx, output_shape, 2);
 
-	var b_shape: array<u32, 6>;
-    var o_shape: array<u32, 6>;
+	var dot_sum = 0.0;
+	for(var i=0u; i<weight_shape[1]; i++){
+		let weight_id = sample_idx * sample_size + output_pos[0] * weight_shape[1] + i;
+		let input_id = sample_idx * sample_size + input_offset + output_pos[1] + input_shape[1] * i;
+
+		dot_sum += input[weight_id] * input[input_id];
+	}
+
+	var bias_pos: array<u32, 6>;
 
 	for (var i = 0u; i < 2; i++) {
-        b_shape[i] = shapes[4 + i];
-        o_shape[i] = shapes[6 + i];
-    }
-	let output_pos = idx_to_global(idx, o_shape, 2);
-	
-	var input2_pos: array<u32, 6>;
-
-    for (var i = 0u; i < 2; i++) {
-		if (b_shape[i] == 1u){
-			input2_pos[i] = 0u;
+		if (bias_shape[i] == 1u){
+			bias_pos[i] = 0u;
 		}
 		else{
-			input2_pos[i] = output_pos[i];
+			bias_pos[i] = output_pos[i];
 		}
     }
-	let input2_offset = global_to_idx(input2_pos, b_shape, 2);
 
-	let matmul_size = shapes[0] * shapes[1] + shapes[2] * shapes[3];
+	let bias_idx = sample_idx * sample_size + bias_offset + global_to_idx(bias_pos, bias_shape, 2);
 
-	let input2_val = input[input2_offset + matmul_size];
-
-    output[idx] = relu(sum + input2_val);
+    output[idx] = relu(dot_sum + input[bias_idx]);
 }

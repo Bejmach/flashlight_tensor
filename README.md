@@ -23,7 +23,7 @@
 ## Instalation
 ```toml
 [dependencies]
-flashlight_tensor = "0.4.3"
+flashlight_tensor = "0.4.5"
 
 # Experimental(Not everything documented and working. Use at your own risk)
 flashlight_tensor = { git = "https://github.com/Bejmach/flashlight_tensor"}
@@ -80,8 +80,10 @@ Run tests with:
 - better file structure
 - ml derivative ops that I forgot to include before
 ##### V0.4.4
-- bug fixed
+- bug fixes
 - backward activations
+##### V0.4.5
+- bug fixes
 
 
 ### What changed in 0.4.x
@@ -106,10 +108,11 @@ let full_gpu_output: Vec<Tensor<f32>> = buffers.run().await;
 
 > New way also has integrated chunking, so if data you try to process it bigger than max buffer size, then it will run the operation in chunks and merge data at the end
 
+> You also dont need to set output size for sample. GpuRunner handles that
+
 ```rust
 let mut runner: GpuRunner = GpuRunner::init(1, MemoryMetric::GB);
-//
-//                                new in 0.4.1  No need to give output size -\
+
 let sample = Sample::from_data(vec!{Tensor::fill(1.0, &[2, 2])}, vec!{1.0}, &[]);
 runner.append(sample);
 
